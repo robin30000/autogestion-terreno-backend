@@ -1,0 +1,87 @@
+.row .col {
+	padding: 0px !important;
+}
+
+/* label focus color */
+.input-field input:focus + label,
+.input-field textarea:focus + label,
+.input-field select:focus + label 
+{
+	color: #00347e !important;
+}
+
+/* label underline focus color */
+.input-field input:focus,
+.input-field textarea:focus,
+.input-field select:focus 
+{
+	border-bottom: 1px solid #00347e !important;
+	box-shadow: 0 1px 0 0 #00347e !important;
+}
+
+/* valid color */
+.input-field input.valid,
+.input-field textarea.valid,
+.input-field select.valid
+{
+	border-bottom: 1px solid #00347e !important;
+	box-shadow: 0 1px 0 0 #00347e !important;
+}
+
+/* invalid color */
+.input-field input.invalid
+.input-field textarea.invalid,
+.input-field select.invalid
+{
+	border-bottom: 1px solid #7E0000;
+	box-shadow: 0 1px 0 0 #7E0000;
+}
+
+/* icon prefix focus color */
+.input-field .prefix.active
+{
+	color: #00347e !important;
+}
+
+ul.dropdown-content.select-dropdown li span {
+    color: #00347e !important;
+}
+
+.chip:focus {
+    outline: none;
+    background-color: #00347e !important;
+    color: #fff;
+}
+
+.chips.focus {
+    border-bottom: 1px solid #00347e !important;
+    -webkit-box-shadow: 0 1px 0 0 #00347e !important;
+    box-shadow: 0 1px 0 0 #00347e !important;
+}
+
+[type="checkbox"].filled-in:checked+span:not(.lever):before{
+
+	border-right:2px solid #fff;
+	border-bottom:2px solid #fff;
+  /* if just wanted to change the color of tick mark you can change the above borders 	 */
+  
+}
+
+ [type="checkbox"].filled-in:checked+span:not(.lever):after{
+	
+	border:2px solid #00347e;
+	background-color:#00347e;
+   
+  /* if you want to change the filling color when the user checks the box by mouse click you can change the above values */
+}
+
+[type="checkbox"].filled-in.tabbed:checked:focus+span:not(.lever):after{
+	
+	background-color:#00347e;
+	border-color:#00347e;
+  
+  /* if you want to change the filling color when the user checks the box by pressing tab and press spacebar you can change the above values */
+  
+} 
+
+/* i presented 2 input fields so you can also check the tab and spacebar case to check the box easily */

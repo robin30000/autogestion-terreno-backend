@@ -1,5 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+error_reporting(0);
+ini_set('display_errors', 0);
 
 class Master extends CI_Controller {
 
@@ -10,7 +12,7 @@ class Master extends CI_Controller {
 		$this->load->helper('url');
 	}
 
-	
+
 	public function index()
 	{
 		$this->load->view('master');
@@ -36,5 +38,5 @@ class Master extends CI_Controller {
 		$this->load->view('lista_contingencia');
 	}
 
-	
+
 }

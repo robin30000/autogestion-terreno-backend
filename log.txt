@@ -1,0 +1,9 @@
+2023-05-25 15:13:46 - Mensaje de log que deseas registrar.
+2023-05-25 15:14:17 - Mensaje de log que deseas registrar.
+2023-05-25 15:17:46 - Mensaje de log que deseas registrar.
+2023-05-25 15:18:15 - Mensaje de log que deseas registrar.
+2023-05-25 15:19:22 - Mensaje de log que deseas registrar.
+2023-05-25 15:19:26 - Mensaje de log que deseas registrar.
+2023-05-25 15:20:05 - Mensaje de log que deseas registrar.
+2023-05-25 15:20:26 - Mensaje de log que deseas registrar.
+2023-05-25 15:20:43 - Mensaje de log que deseas registrar.

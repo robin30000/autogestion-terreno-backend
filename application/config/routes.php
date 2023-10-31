@@ -64,6 +64,7 @@ $route['listacontingencia'] = 'master/viewlistacontingencia';
 /* AUTENTICACION */
 $route['ingresar'] = 'Autenticacion/autenticar';
 $route['validarjwt'] = 'Autenticacion/verificarjwt';
+$route['validarmenu'] = 'Autenticacion/menuapp';
 
 /* SOPORTE GPON */
 $route['postsoportegpon'] = 'Consoportegpon/postsoportegpon';
@@ -72,6 +73,55 @@ $route['getsoportegponbyuser'] = 'Consoportegpon/getsoportegponbyuser';
 /* CONTINGENCIA */
 $route['postcontingencia'] = 'Concontingencia/postcontingencia';
 $route['getcontingenciabyuser'] = 'Concontingencia/getcontingenciabyuser';
+$route['gettareagpon'] = 'Concontingencia/gettareagpon';
+
+/* BB8 */
+$route['getbb8'] = 'Conbb8/getbb8';
+
+/* CODIGO INCOMPLETO */
+$route['getcodigoincompleto'] = 'Concodigoincompleto/getcodigoincompleto';
+
+/* SEGUIMIENTO CLICK */
+$route['gettecnicosbysupervisor'] = 'Conseguimientoclick/gettecnicosbysupervisor';
+$route['gettareasbytecnico'] = 'Conseguimientoclick/gettareasbytecnico';
+
+/* CONSULTA QUEJAS */
+
+$route['getQuejas'] = 'ConQuejas/getQuejas';
+$route['postquejago'] = 'ConQuejas/postquejago';
+$route['getquejasgobyuser'] = 'ConQuejas/getquejasgobyuser';
+
+/**
+ * registro equipos
+ */
+
+$route['postregistroequipos'] = 'RegistroEquipos/postregistroequipos';
+$route['getregistroequiposbyuser'] = 'RegistroEquipos/getregistroequiposbyuser';
+$route['getregistropedido'] = 'RegistroEquipos/getregistropedido';
+
+/**
+ * ETP
+ */
+
+$route['validapedidoetp'] = 'Etp/validaPedidoETP';
+$route['postpedidoetp'] = 'Etp/postPedidoETP';
+$route['getsoporteetpbyuser'] = 'Etp/getsoporteetpbyuser';
+
+/**
+ * mesas nacionales
+ */
+
+$route['validaPedidoMn'] = 'MesasNacionales/validaPedidoMn';
+$route['postPedidoMn'] = 'MesasNacionales/postPedidoMn';
+$route['getsoporteMnbyuser'] = 'MesasNacionales/getsoporteMnbyuser';
+
+/**
+ * encuestas
+ */
+
+$route['validaEncuesta'] = 'EncuestaTecnico/validaEncuesta';
+$route['getEncuesta'] = 'EncuestaTecnico/getEncuesta';
+
 
 
 

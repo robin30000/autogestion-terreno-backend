@@ -34,36 +34,25 @@ class Modelosoportegpon extends CI_Model
 	public function getsoportegponbyuser($user_id)
 	{
 		try {
-
             $fecha = date('Y-m-d');
-            $fecha = $fecha . ' 00:00:00';
-
-			$sql = "SELECT id_soporte, tarea, unepedido, tasktypecategory, status_soporte, fecha_solicitud_firebase, respuesta_soporte, observacion, fecha_respuesta, observacion_terreno
-			FROM soporte_gpon
-			WHERE user_id_firebase = ?  AND fecha_solicitud_firebase >= ?;";
-			$query = $this->db->query($sql, array($user_id, $fecha));
-
-
-           /* $sql = "SELECT
-                        s.id_soporte,
-                        s.tarea,
-                        s.unepedido,
-                        s.tasktypecategory,
-                        s.status_soporte,
-                        s.fecha_solicitud_firebase,
-                        s.respuesta_soporte,
-                        s.observacion,
-                        s.fecha_respuesta,
-                        s.observacion_terreno
+            $sql = "SELECT
+                        id_soporte,
+                        tarea,
+                        unepedido,
+                        tasktypecategory,
+                        status_soporte,
+                        fecha_solicitud_firebase,
+                        respuesta_soporte,
+                        observacion,
+                        fecha_respuesta,
+                        observacion_terreno 
                     FROM
-                        soporte_gpon s INNER JOIN tecnicos t on t.identificacion = s.engineer_id
+                        soporte_gpon 
                     WHERE
-                        ( t.login_click = ? )
-                        AND fecha_creado > ?";
-			$query = $this->db->query($sql, array($user_id, $fecha));*/
-
-
-
+                        user_id_firebase = ?
+                        AND fecha_solicitud_firebase BETWEEN '$fecha 00:00:00' AND '$fecha 23:59:59'";
+            $query = $this->db->query($sql, array($user_id));
+            
 			$res = ($query->num_rows() > 0) ? $query->result_array() : 0 ;
 
 			return $res;

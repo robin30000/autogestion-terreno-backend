@@ -22,12 +22,22 @@ class Etp extends CI_Controller
         echo 'Etp';
     }
 
-
     public function validaPedidoETP()
     {
 
         $jwt     = $this->input->get_request_header('x-token', true);
         $reqjson = json_decode($this->input->raw_input_stream, true);
+
+        $hora_actual = date('H:i');
+
+        $hora_inicio = '07:00';
+        $hora_fin    = '20:00';
+
+        if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            echo json_encode($arrayResult);
+            die();
+        }
 
         $payload = $this->validarjwt->verificarjwtlocal($jwt);
 

@@ -1,6 +1,6 @@
 <?php
 
-class Conection extends PDO
+class Connection extends PDO
 {
 
 	private $tipo_de_base = 'mysql';

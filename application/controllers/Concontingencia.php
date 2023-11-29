@@ -43,6 +43,17 @@ class Concontingencia extends CI_Controller
             die();
         }
 
+        $hora_actual = date('H:i');
+
+        $hora_inicio = '07:00';
+        $hora_fin    = '20:00';
+
+        if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            echo json_encode($arrayResult);
+            die();
+        }
+
         $pedido           = trim(htmlentities($reqjson['pedido'], ENT_QUOTES));
         $tipoproducto     = trim(htmlentities($reqjson['tipoproducto'], ENT_QUOTES));
         $tipocontingencia = trim(htmlentities($reqjson['tipocontingencia'], ENT_QUOTES));
@@ -50,10 +61,18 @@ class Concontingencia extends CI_Controller
         $macentra         = strtoupper(trim(htmlentities($reqjson['macentra'], ENT_QUOTES)));
         $macsale          = '';
 
+	    $user_id             = $payload->login;
+	    $request_id          = null;
+	    $user_identification = $payload->iduser;
+	    $fecha_solicitud     = date('Y-m-d H:i:s');
+
         if (stripos($pedido, 's') !== false) {
 
             $datasoportegpon = $this->Modelocontingencia->getcontingenciabypedido($pedido, $tipoproducto, $fecha);
             if ($datasoportegpon == 0) {
+                if ($tipocontingencia == 'Cambio de Equipo') {
+                    $macsale = strtoupper(trim(htmlentities($reqjson['macsale'], ENT_QUOTES)));
+                }
                 $uNEMunicipio    = '';
                 $correo          = '';
                 $motivo          = '';
@@ -67,19 +86,17 @@ class Concontingencia extends CI_Controller
                 $perfil          = '';
                 $engestion  = '0';
                 $grupo = ($tipoproducto == 'Internet' || $tipoproducto == 'ToIP' || $tipoproducto == 'Internet+Toip') ? 'INTER' : 'TV';
-                $user_id             = '';
-                $user_identification = '';
-                $fecha_solicitud     = date('Y-m-d H:i:s');
-                $tAREA_ID            = '';
-                $sistema             = '';
+                $tAREA_ID            = $pedido;
+                $sistema             = 'POE-SA';
+                $typeTask = '';
 
                 $ressoportegpon = $this->Modelocontingencia->postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes,
                     $pedido,
                     $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification,
-                    $fecha_solicitud, $engestion, $tAREA_ID, $sistema);
+                    $fecha_solicitud, $engestion, $tAREA_ID, $sistema, $typeTask);
 
                 if ($ressoportegpon == 1 || $ressoportegpon == 0) {
-                    $arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con exito.'];
+                    $arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];
                 } else {
                     $arrayResult = ['type' => 'error', 'message' => 'Error al registrar solicitud.', 'error' => $ressoportegpon];
                 }
@@ -244,10 +261,7 @@ class Concontingencia extends CI_Controller
              } */
         }
         //si diferente de pedido solicitud entrante en el boot de sara
-        $user_id             = $payload->login;
-        $request_id          = null;
-        $user_identification = $payload->iduser;
-        $fecha_solicitud     = date('Y-m-d H:i:s');
+
 
         $engineer_Type         = $dataclick['engineer_Type'];
         $engineerID            = $dataclick['engineerID'];
@@ -287,6 +301,15 @@ class Concontingencia extends CI_Controller
         $RTA3            = $dataclick['RTA3'];
         $LoginName       = $dataclick['LoginName'];
         $Estado          = $dataclick['Estado'];
+        $typeTask = $dataclick['typeTask'];
+
+        if (stripos($typeTask, 'NUEVO') !== false) {
+            $typeTask = 'Nuevo';
+        } elseif (stripos($typeTask, 'REPARACION') !== false) {
+            $typeTask = 'Reparación';
+        } else {
+            $typeTask = 'Upgrade';
+        }
 
         $correo     = '';
         $motivo     = '';
@@ -304,12 +327,12 @@ class Concontingencia extends CI_Controller
         if ($datasoportegpon == 0) {
             // INSERT
 
-            $ressoportegpon = $this->Modelocontingencia->postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes, $pedido,
+            $ressoportegpon = $this->Modelocontingencia->postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes, $pEDIDO_UNE,
                 $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification,
-                $fecha_solicitud, $engestion, $tAREA_ID, $sistema);
+                $fecha_solicitud, $engestion, $tAREA_ID, $sistema, $typeTask);
 
             if ($ressoportegpon == 1 || $ressoportegpon == 0) {
-                $arrayResult = array('type' => 'success', 'message' => 'Se registro solicitud con exito.');
+                $arrayResult = array('type' => 'success', 'message' => 'Se registro solicitud con éxito.');
             } else {
                 $arrayResult = array('type' => 'error', 'message' => 'Error al registrar solicitud.', 'error' => $ressoportegpon);
             }

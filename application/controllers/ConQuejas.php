@@ -25,14 +25,23 @@ class ConQuejas extends CI_Controller {
         $reqjson = json_decode($this->input->raw_input_stream, true);
         $pedido = trim(htmlentities($this->input->get('pedido'),ENT_QUOTES));
 
+        $hora_actual = date('H:i');
+        $hora_inicio = '07:00';
+        $hora_fin    = '20:00';
+
+        if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            echo json_encode($arrayResult);
+            die();
+        }
 
         $payload = $this->validarjwt->verificarjwtlocal($jwt);
 
-        /*if (!$payload) {
+        if (!$payload) {
             $arrayResult = array('type' => 'errorAuth', 'message' => 'Token no valido.');
             echo json_encode($arrayResult);
             die();
-        }*/
+        }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV_DEV/ConsultaQueja/$pedido");
@@ -57,6 +66,17 @@ class ConQuejas extends CI_Controller {
         $reqjson = json_decode($this->input->raw_input_stream, true);
 
         $data = json_decode(file_get_contents("php://input"),true);
+
+        $hora_actual = date('H:i');
+
+        $hora_inicio = '07:00';
+        $hora_fin    = '20:00';
+
+        if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            echo json_encode($arrayResult);
+            die();
+        }
 
         $payload = $this->validarjwt->verificarjwtlocal($jwt);
 

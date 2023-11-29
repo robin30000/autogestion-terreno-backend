@@ -22,12 +22,22 @@ class MesasNacionales extends CI_Controller
         echo 'Etp';
     }
 
-
     public function validaPedidoMn()
     {
 
         $jwt     = $this->input->get_request_header('x-token', true);
         $reqjson = json_decode($this->input->raw_input_stream, true);
+
+        $hora_actual = date('H:i');
+
+        $hora_inicio = '07:00';
+        $hora_fin    = '20:00';
+
+        if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            echo json_encode($arrayResult);
+            die();
+        }
 
         $payload = $this->validarjwt->verificarjwtlocal($jwt);
 
@@ -53,7 +63,7 @@ class MesasNacionales extends CI_Controller
 
         curl_close($ch);
 
-        if (stripos($tarea, 's') !== false) {
+        if (stripos($tarea, 'sa') === 0) {
             $arrayResult = ['type' => 'success', 'message' => 'ELT-POE'];
             echo json_encode($arrayResult);
             die();
@@ -124,7 +134,7 @@ class MesasNacionales extends CI_Controller
         $dataclick1 = $dataclick[0];
         $mesa       = '';
 
-        if (stripos($tarea, 's') !== false) {
+        if (stripos($tarea, 'sa') === 0) {
             $dataMn = $this->ModeloMesasNacionales->getMnByTask($tarea);
             if (!$dataMn) {
                 $unepedido        = '';
@@ -146,7 +156,7 @@ class MesasNacionales extends CI_Controller
                     $mesa,
                     $accion,
                     $region,
-                    $area);
+                    strtoupper($area));
 
                 if ($resMn) {
                     $arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];

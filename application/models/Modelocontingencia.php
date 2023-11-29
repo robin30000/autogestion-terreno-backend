@@ -12,8 +12,8 @@ class Modelocontingencia extends CI_Model
 
 			$sql = "SELECT id, accion, ciudad, correo, macEntra, macSale, motivo, observacion, paquetes, pedido, proceso, producto, remite, tecnologia, tipoEquipo, uen, contrato, perfil, grupo, logindepacho, logincontingencia, horagestion, horacontingencia, observContingencia, acepta, ingresoEquipos, tipificacion, engestion, finalizado, fechaClickMarca, loginContingenciaPortafolio, horaContingenciaPortafolio, observContingenciaPortafolio, aceptaPortafolio, ingresoEquiposPortafolio, tipificacionPortafolio, enGestionPortafolio, finalizadoPortafolio, fechaClickMarcaPortafolio, id_terreno, generarcr 
 			FROM contingencias 
-			WHERE pedido = ? and producto = ? and horagestion >= ? AND finalizado IS NULL;";
-			$query = $this->db->query($sql, array($pedido, $producto, $fecha));
+			WHERE tarea = ? and producto = ? AND finalizado IS NULL;";
+			$query = $this->db->query($sql, array($pedido, $producto));
 
 			$res = ($query->num_rows() > 0) ? $query->row_array() : 0 ;
 
@@ -50,11 +50,11 @@ class Modelocontingencia extends CI_Model
 		}
 	}
 
-	public function postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes, $pedido, $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification, $fecha_solicitud, $engestion,  $tAREA_ID, $sistema)
+	public function postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes, $pedido, $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification, $fecha_solicitud, $engestion,  $tAREA_ID, $sistema, $typeTask)
 	{
 		try {
 
-			$sql = "INSERT INTO contingencias (accion, ciudad, correo, macEntra, macSale, motivo, observacion, paquetes, pedido, proceso, producto, remite, tecnologia, tipoEquipo, uen, contrato, perfil, grupo, logindepacho, id_terreno, horagestion, engestion, tarea, uneSourceSystem) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+			$sql = "INSERT INTO contingencias (accion, ciudad, correo, macEntra, macSale, motivo, observacion, paquetes, pedido, proceso, producto, remite, tecnologia, tipoEquipo, uen, contrato, perfil, grupo, logindepacho, id_terreno, horagestion, engestion, tarea, uneSourceSystem, taskType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?);";
 			$query = $this->db->query($sql,
 				array(
 					$tipocontingencia,
@@ -79,7 +79,7 @@ class Modelocontingencia extends CI_Model
 					$user_identification,
 					$fecha_solicitud,
 					$engestion,
-                    $tAREA_ID, $sistema
+                    $tAREA_ID, $sistema, $typeTask
 				)
 			);
 
@@ -150,7 +150,7 @@ class Modelocontingencia extends CI_Model
 				       case c.acepta WHEN 'Rechaza' THEN 'Rechazado' when 'Acepta' then 'Ok' ELSE 'En progreso' END AS finalizado,
 				       CASE WHEN c.observContingencia IS NULL THEN '' ELSE c.observContingencia END AS observacion
 				FROM contingencias c
-				WHERE pedido = ?";
+				WHERE tarea = ?";
 			$query = $this->db->query($sql, array($tarea));
 
 			$res = ($query->num_rows() > 0) ? $query->result_array() : 0 ;

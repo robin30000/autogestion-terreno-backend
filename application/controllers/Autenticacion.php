@@ -42,7 +42,7 @@ class Autenticacion extends CI_Controller
             $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
         } elseif (empty($username) || empty($password)) {
             $arrayResult = ['type' => 'error', 'message' => 'No pueden haber campos vacíos, ingrese usuario y clave.'];
-        } elseif (!$version || $version != '19') {
+        } elseif (!$version || $version != '20') {
             $arrayResult = ['type' => 'error', 'message' => 'Comunicate con un administrador para obtener la version actualizada de la aplicación.'];
         } else {
             $valUserQuery = $this->Modeloautenticacion->consultauser($username, $password);
@@ -245,9 +245,9 @@ class Autenticacion extends CI_Controller
             ],
             [
                 "menuOpt"  => 6,
-                "menuName" => "Código Incompleto",
+                "menuName" => "Códigos",
                 "menuIcon" => 62122,
-                "pageName" => "Código Incompleto",
+                "pageName" => "Códigos",
                 "estado"   => true,
             ],
             [

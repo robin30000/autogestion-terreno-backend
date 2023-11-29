@@ -23,7 +23,6 @@ class Concodigoincompleto extends CI_Controller {
 
 	public function gettareagpon()
 	{
-		echo 'Hola Robin';exit();
 		$fecha = date('Y-m-d H:i:s');
 
 		$jwt = $this->input->get_request_header('x-token', TRUE);

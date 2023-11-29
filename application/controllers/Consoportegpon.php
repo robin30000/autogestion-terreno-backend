@@ -31,6 +31,17 @@ class Consoportegpon extends CI_Controller
 		$jwt     = $this->input->get_request_header('x-token', true);
 		$reqjson = json_decode($this->input->raw_input_stream, true);
 
+        $hora_actual = date('H:i');
+
+        $hora_inicio = '07:00';
+        $hora_fin    = '20:00';
+
+        if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            echo json_encode($arrayResult);
+            die();
+        }
+
 		$payload = $this->validarjwt->verificarjwtlocal($jwt);
 
 		if (!$payload) {
@@ -61,12 +72,17 @@ class Consoportegpon extends CI_Controller
 		$observacion         = $reqjson['observacion'];
 		$infra               = $reqjson['infraestructura'];
 
+/*        'iduser'  => $valUserQuery['identificacion'],
+        'login'   => $valUserQuery['login_click'],
+        'celular' => $celular,
+        'nombre'  => $nombre,*/
+
         $val['infra'] = $infra;
         $val['tarea'] = $tarea;
         $val['infraestructura'] = $validacion[2]['valida'];
         $val['equipo'] = $validacion[5]['valida'];
 
-		if (stripos($tarea, 's') !== false) {
+        if (stripos($tarea, 'sa') === 0) {
 			$datasoportegpon = $this->Modelosoportegpon->getsoportegponbytask($tarea, $fecha);
 			if (!$datasoportegpon) {
 
@@ -76,7 +92,7 @@ class Consoportegpon extends CI_Controller
 				$tasktypecategory     = '';
 				$unemunicipio         = '';
 				$uneproductos         = '';
-				$engineer_id          = $login;
+				$engineer_id          = $user_identification;
 				$engineer_name        = $nombre_contacto;
 				$mobile_phone         = $numero_contacto;
 				$velocidad_navegacion = '';
@@ -87,9 +103,9 @@ class Consoportegpon extends CI_Controller
 				$Tipo                 = '';
 				$taskType             = '';
 				$area                 = '';
-				$user_id              = $user_identification;
+				$user_id              = $login;
 
-				$ressoportegpon = $this->Modelosoportegpon->postsoportegpon($tarea, $arpon, $nap, $hilo, $internet_port1, $internet_port2, $internet_port3, $internet_port4,
+				$ressoportegpon = $this->Modelosoportegpon->postsoportegpon(strtoupper($tarea), $arpon, $nap, $hilo, $internet_port1, $internet_port2, $internet_port3, $internet_port4,
 					$tv_port1,
 					$tv_port2, $tv_port3, $tv_port4, $numero_contacto, $nombre_contacto, $observacion, $user_id, $request_id, $user_identification, $fecha_solicitud, $unepedido,
 					$tasktypecategory, $unemunicipio, $uneproductos, $engineer_id, $engineer_name, $mobile_phone, $velocidad_navegacion, $serials, $macs, $tipoeqs, $planprod,
@@ -117,6 +133,7 @@ class Consoportegpon extends CI_Controller
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($val));
 		$data = curl_exec($ch);
+        //var_dump($data);exit();
 
 		curl_close($ch);
 		$dataclick = json_decode($data, true);

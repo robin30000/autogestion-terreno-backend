@@ -31,6 +31,17 @@ class RegistroEquipos extends CI_Controller
 
 		$data = json_decode(file_get_contents("php://input"), true);
 
+        $hora_actual = date('H:i');
+
+        $hora_inicio = '07:00';
+        $hora_fin    = '20:00';
+
+        if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            echo json_encode($arrayResult);
+            die();
+        }
+
 		$payload = $this->validarjwt->verificarjwtlocal($jwt);
 
 		$data['user'] = $payload->login;

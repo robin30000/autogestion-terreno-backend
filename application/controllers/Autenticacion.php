@@ -55,7 +55,7 @@ class Autenticacion extends CI_Controller
                 $arrayResult = ['type' => 'error', 'message' => 'Usuario se encuentra inactivo, comuníquese con el adminstrador.'];
             } else {
 
-                $pdo = new Connection();
+                /*$pdo = new Connection();
                 $cc  = $valUserQuery['identificacion'];
 
                 $query = "SELECT top 1 CELULAR, NOMBRE_FUNCIONARIO from DimWorking WHERE COD_FUNCIONARIO = :cc ORDER BY FECHA_CARGA DESC";
@@ -65,7 +65,7 @@ class Autenticacion extends CI_Controller
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 $celular = isset($result['CELULAR']) ? $result['CELULAR'] : '';
-                $nombre  = isset($result['NOMBRE_FUNCIONARIO']) ? $result['NOMBRE_FUNCIONARIO'] : '';
+                $nombre  = isset($result['NOMBRE_FUNCIONARIO']) ? $result['NOMBRE_FUNCIONARIO'] : '';*/
 
                 $valUserQuery['password'] = '';
                 $valUserQuery['logueado'] = 'SI';
@@ -77,8 +77,10 @@ class Autenticacion extends CI_Controller
                     'iat'     => strtotime(date('Y-m-d H:i:s')),
                     'iduser'  => $valUserQuery['identificacion'],
                     'login'   => $valUserQuery['login_click'],
-                    'celular' => $celular,
-                    'nombre'  => $nombre,
+                    'celular' => $valUserQuery['celular'],
+                    'nombre'  => $valUserQuery['nombre'],
+                    /*'celular' => $celular,
+                    'nombre'  => $nombre,*/
                 ];
 
                 /**

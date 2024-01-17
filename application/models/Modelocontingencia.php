@@ -144,7 +144,7 @@ class Modelocontingencia extends CI_Model
 
 	public function getdatosgpon($tarea){
 		try {
-			$sql = "SELECT c.pedido,
+			$sql = "SELECT c.tarea,
 				       CASE WHEN c.horagestion IS NULL THEN '-' ELSE c.horagestion END           AS horagestion,
 				       CASE WHEN c.horacontingencia IS NULL THEN '-' ELSE c.horacontingencia END AS horacontingencia,
 				       case c.acepta WHEN 'Rechaza' THEN 'Rechazado' when 'Acepta' then 'Ok' ELSE 'En progreso' END AS finalizado,

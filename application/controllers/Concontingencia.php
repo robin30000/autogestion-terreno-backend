@@ -66,7 +66,7 @@ class Concontingencia extends CI_Controller
 	    $user_identification = $payload->iduser;
 	    $fecha_solicitud     = date('Y-m-d H:i:s');
 
-        if (stripos($pedido, 's') !== false) {
+        if (stripos($pedido, 'sa') !== false || stripos($pedido, 'w') !== false) {
 
             $datasoportegpon = $this->Modelocontingencia->getcontingenciabypedido($pedido, $tipoproducto, $fecha);
             if ($datasoportegpon == 0) {
@@ -155,6 +155,12 @@ class Concontingencia extends CI_Controller
 
         if (count($dataclick) > 0) {
             $dataclick = $dataclick[0];
+
+            if ($dataclick === 1587) {
+                $arrayResult = array('type' => 'error', 'message' => 'Se debe escalar por la mesa GPON');
+                echo json_encode($arrayResult);
+                die();
+            }
 
             if ($dataclick === 3001) {
                 $arrayResult = array('type' => 'error', 'message' => 'Las reparaciones se deben tramitar por despacho.');

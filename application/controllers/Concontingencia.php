@@ -309,13 +309,13 @@ class Concontingencia extends CI_Controller
         $Estado          = $dataclick['Estado'];
         $typeTask = $dataclick['typeTask'];
 
-        if (stripos($typeTask, 'NUEVO') !== false) {
+        /*if (stripos($typeTask, 'NUEVO') !== false) {
             $typeTask = 'Nuevo';
         } elseif (stripos($typeTask, 'REPARACION') !== false) {
             $typeTask = 'Reparación';
         } else {
             $typeTask = 'Upgrade';
-        }
+        }*/
 
         $correo     = '';
         $motivo     = '';

@@ -42,7 +42,7 @@ class Autenticacion extends CI_Controller
             $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
         } elseif (empty($username) || empty($password)) {
             $arrayResult = ['type' => 'error', 'message' => 'No pueden haber campos vacíos, ingrese usuario y clave.'];
-        } elseif (!$version || $version != '20') {
+        } elseif (!$version || $version != '21') {
             $arrayResult = ['type' => 'error', 'message' => 'Comunicate con un administrador para obtener la version actualizada de la aplicación.'];
         } else {
             $valUserQuery = $this->Modeloautenticacion->consultauser($username, $password);

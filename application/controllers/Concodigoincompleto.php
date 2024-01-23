@@ -152,6 +152,8 @@ class Concodigoincompleto extends CI_Controller
 			$respuesta = $datacodinc[0]['Estado'];
 			$Description = $datacodinc[0]['Description'];
 			$codigo = $datacodinc[0]['UNEIncompletionAC'];
+			$tasktype = $datacodinc[0]['tasktype'];
+			//Cambio_Equipo DTH
 
 			$to_time = strtotime(date('Y-m-d H:i:s'));
 			$from_time = strtotime($datacodinc[0]['TimeCreated']);
@@ -159,6 +161,12 @@ class Concodigoincompleto extends CI_Controller
 
 			if ($appointmentStart > $fecha) {
 				$arrayResult = array('type' => 'error', 'message' => 'Cliente posee una cita programada posterior.');
+				echo json_encode($arrayResult);
+				die();
+			}
+
+			if ($datacodinc[0]['tasktype'] == 'Cambio_Equipo DTH'){
+				$arrayResult = array('type' => 'error', 'message' => 'Se debe escalar por el menu mesas nacionales (Cambio_Equipo DTH)');
 				echo json_encode($arrayResult);
 				die();
 			}

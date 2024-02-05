@@ -44,11 +44,11 @@ class Modelocodigoincompleto extends CI_Model
         }
     }
 
-	public function postgestioncodigoincompleto($unepedido,$unemunicipio,$uneproductos,$engineerid,$engineername,$unenombrecontacto,$unetelefonocontacto,$tasktypecategory,$mobilephone,$tarea,$fecha_inicio,$fecha_respuesta, $respuesta, $observacion,$codigo)
+	public function postgestioncodigoincompleto($unepedido,$unemunicipio,$uneproductos,$engineerid,$engineername,$unenombrecontacto,$unetelefonocontacto,$tasktypecategory,$mobilephone,$tarea,$fecha_inicio,$fecha_respuesta, $respuesta, $observacion,$codigo,$login)
 	{
 		try {
 
-			$sql = "INSERT INTO gestion_codigo_incompleto (tarea, numero_contacto, nombre_contacto, unepedido, tasktypecategory, unemunicipio, uneproductos, engineer_id, engineer_name, mobile_phone, fecha_solicitud_firebase, fecha_creado, fecha_respuesta,respuesta_gestion, observacion, codigo, status_soporte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,1);";
+			$sql = "INSERT INTO gestion_codigo_incompleto (tarea, numero_contacto, nombre_contacto, unepedido, tasktypecategory, unemunicipio, uneproductos, engineer_id, engineer_name, mobile_phone, fecha_solicitud_firebase, fecha_creado, fecha_respuesta,respuesta_gestion, observacion, codigo, status_soporte, login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,1,?);";
 			$query = $this->db->query($sql,
 				array(
 					$tarea,
@@ -66,7 +66,8 @@ class Modelocodigoincompleto extends CI_Model
                     $fecha_inicio,
                     $respuesta,
                     $observacion,
-                    $codigo
+                    $codigo,
+					$login
 				)
 			);
 
@@ -88,7 +89,7 @@ class Modelocodigoincompleto extends CI_Model
 		try {
 
 			$sql = "UPDATE gestion_codigo_incompleto SET numero_contacto = ?, nombre_contacto = ?, unepedido = ?, tasktypecategory = ?, unemunicipio = ?, uneproductos = ?, engineer_id = ?, engineer_name = ?, mobile_phone = ?, fecha_respuesta = ?, respuesta_gestion = ?, observacion = ?, status_soporte = '1', codigo = ? WHERE tarea = ?;";
-			$query = $this->db->query($sql,
+			$query = $this->db->query($sql,...
 				array(
 					$unetelefonocontacto,
 					$unenombrecontacto,

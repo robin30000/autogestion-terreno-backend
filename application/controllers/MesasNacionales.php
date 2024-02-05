@@ -70,22 +70,27 @@ class MesasNacionales extends CI_Controller
 		}
 
 		$dataclick = json_decode($data, true);
-		$pattern = '/\b(BSC|B2B)\b/i';
-
-        /*$arrayResult = ['type' => 'success', 'message' => var_dump($dataclick)];
-        echo json_encode($arrayResult);
-        die();*/
+		$pattern = '/\b(B2B|Recuperacion|Corte|Reconexion|Mantenimiento)\b/i';
+		/*$arrayResult = ['type' => 'success', 'message' => var_dump($dataclick)];
+		echo json_encode($arrayResult);
+		die();*/
 
 		if (!$dataclick) {
 			$arrayResult = ['type' => 'error', 'message' => 'La tarea no existe. validar tarea e intentar nuevamente.'];
-		} elseif ($dataclick == 5555) {
+		} /*elseif ($dataclick == 5555) {
+			$arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];*/
+		/*elseif ($dataclick[0]['Estado'] != 'En Sitio') {
 			$arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];
-		} elseif ($dataclick[0]['Estado'] != 'En Sitio') {
-			$arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];
+		}*/ elseif (preg_match($pattern, $dataclick[0]['TaskTypeCategory'])) {
+			$arrayResult = ['type' => 'error', 'message' => 'El tipo de tarea no aplica'];
 		} elseif ($dataclick[0]['TaskType'] == 'Reparacion Infraestructura') {
 			$arrayResult = ['type' => 'success', 'message' => 'PRE'];
 		} elseif ($dataclick[0]['TaskType'] == 'Cambio_Equipo DTH') {
 			$arrayResult = ['type' => 'success', 'message' => 'DTH'];
+		} elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false)) {
+			$arrayResult = ['type' => 'success', 'message' => 'BSC'];
+		} elseif ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') {
+			$arrayResult = ['type' => 'success', 'message' => 'BSC'];
 		} elseif ($dataclick[0]['UneSourceSystem'] == 'EDA') {
 			$arrayResult = ['type' => 'success', 'message' => 'EDA'];
 		} elseif ($dataclick[0]['UneSourceSystem'] == 'ELT' || $dataclick[0]['UneSourceSystem'] == 'POE') {
@@ -127,6 +132,7 @@ class MesasNacionales extends CI_Controller
 		$cc_tecnico = $payload->iduser;
 
 		$observacion = $reqjson['observacion'];
+		$ata = $reqjson['ata'];
 
 		$macSale = trim(htmlentities($reqjson['macSale'], ENT_QUOTES));
 		$macEntra = trim(htmlentities($reqjson['macEntra'], ENT_QUOTES));
@@ -158,7 +164,8 @@ class MesasNacionales extends CI_Controller
 					$mesa,
 					$accion,
 					$region,
-					strtoupper($area));
+					strtoupper($area),
+					$ata);
 
 				if ($resMn) {
 					$arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];
@@ -170,11 +177,11 @@ class MesasNacionales extends CI_Controller
 			}
 			echo json_encode($arrayResult);
 			die();
-		} elseif ($dataclick1['Estado'] != 'En Sitio') {
+		} /*elseif ($dataclick1['Estado'] != 'En Sitio') {
 			$arrayResult = ['type' => 'error', 'message' => 'La tarea ya no se encuentra en sitio'];
 			echo json_encode($arrayResult);
 			die();
-		}
+		}*/
 
 
 		/*$arrayResult = ['type' => 'error', 'message' => var_dump($dataclick1)];
@@ -186,6 +193,10 @@ class MesasNacionales extends CI_Controller
 			$mesa = 'Mesa 4';
 		} elseif ($dataclick1['TaskType'] == 'Cambio_Equipo DTH') {
 			$mesa = 'Mesa 5';
+		} elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false)) {
+			$mesa = 'Mesa 6';
+		} elseif ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') {
+			$mesa = 'Mesa 6';
 		} elseif (($dataclick1['UneSourceSystem'] == 'EDA') && ($accion == 'Línea básica' || $accion == 'Cambio de equipo' || $accion == 'Cambio de puerto')) {
 			$mesa = 'Mesa 2';
 		} elseif (($dataclick1['UneSourceSystem'] == 'EDA' || $dataclick1['UneSourceSystem'] == 'ELT' || $dataclick1['UneSourceSystem'] == 'POE') && ($accion == 'Soporte general')) {
@@ -266,7 +277,8 @@ class MesasNacionales extends CI_Controller
 				$mesa,
 				$accion,
 				$region,
-				$area);
+				$area,
+				$ata);
 
 			if ($resMn) {
 				$arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];

@@ -65,6 +65,8 @@ $route['listacontingencia'] = 'master/viewlistacontingencia';
 $route['ingresar'] = 'Autenticacion/autenticar';
 $route['validarjwt'] = 'Autenticacion/verificarjwt';
 $route['validarmenu'] = 'Autenticacion/menuapp';
+$route['recoverPass'] = 'Autenticacion/recoverPass';
+$route['updatePass'] = 'Autenticacion/updatePass';
 
 /* SOPORTE GPON */
 $route['postsoportegpon'] = 'Consoportegpon/postsoportegpon';

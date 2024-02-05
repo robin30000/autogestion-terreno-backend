@@ -54,7 +54,7 @@ class Concodigoincompleto extends CI_Controller
 
 		$user_id = $payload->login;
 		$user_identification = $payload->iduser;
-        if (stripos($tarea, 'sa') === 0) {
+		if (stripos($tarea, 'sa') === 0) {
 			$tipo = $reqjson['tipo'];
 			if ($tipo === 'incompleto') {
 
@@ -112,13 +112,69 @@ class Concodigoincompleto extends CI_Controller
 					date('Y-m-d H:i:s'),
 					$codigo,
 					'SA',
-					$codigo
+					$codigo,
+					$user_id
 				);
 			}
 
 			$arrayResult = array('type' => 'success', 'message' => $codigo);
 			echo json_encode($arrayResult);
 			die();
+		} elseif (stripos($tarea, 'w') === 0) {
+
+			$DespuesDeW = substr($tarea, 1);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV_DEV/BuscarCodInc/$DespuesDeW");
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			$data = curl_exec($ch);
+			curl_close($ch);
+
+			$datacodinc = json_decode($data, true);
+
+			if (count($datacodinc) == 0) {
+				$arrayResult = array('type' => 'error', 'message' => 'Tarea no existe.');
+				echo json_encode($arrayResult);
+				die();
+			}
+
+			$codigo = $datacodinc[0]['UNEIncompletionAC'];
+			$unepedido = $datacodinc[0]['UNEPedido'];
+			$unemunicipio = $datacodinc[0]['UNEMunicipio'];
+			$uneproductos = $datacodinc[0]['UNEProductos'];
+			$engineerid = $datacodinc[0]['EngineerID'];
+			$engineername = $datacodinc[0]['EngineerName'];
+			$unenombrecontacto = $datacodinc[0]['UNENombreContacto'];
+			$unetelefonocontacto = $datacodinc[0]['UNETelefonoContacto'];
+			$tasktypecategory = $datacodinc[0]['tasktypecategory'];
+			$mobilephone = $datacodinc[0]['MobilePhone'];
+
+			$datagestioncodinc = $this->Modelocodigoincompleto->getgestioncodigoincompletotarea($DespuesDeW);
+			if (!$datagestioncodinc) {
+				$this->Modelocodigoincompleto->postgestioncodigoincompleto(
+					$unepedido,
+					$unemunicipio,
+					$uneproductos,
+					$engineerid,
+					$engineername,
+					$unenombrecontacto,
+					$unetelefonocontacto,
+					$tasktypecategory,
+					$mobilephone,
+					$tarea,
+					$fecha,
+					date('Y-m-d H:i:s'),
+					$codigo,
+					'W',
+					$codigo,
+					$user_id
+				);
+			}
+			$arrayResult = array('type' => 'success', 'message' => $datacodinc[0]['UNEIncompletionAC']);
+			echo json_encode($arrayResult);
+			die();
+
 		} else {
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV_DEV/BuscarCodInc/$tarea");
@@ -165,7 +221,7 @@ class Concodigoincompleto extends CI_Controller
 				die();
 			}
 
-			if ($datacodinc[0]['tasktype'] == 'Cambio_Equipo DTH'){
+			if ($datacodinc[0]['tasktype'] == 'Cambio_Equipo DTH') {
 				$arrayResult = array('type' => 'error', 'message' => 'Se debe escalar por el menu mesas nacionales (Cambio_Equipo DTH)');
 				echo json_encode($arrayResult);
 				die();
@@ -199,7 +255,8 @@ class Concodigoincompleto extends CI_Controller
 						$fecha_respuesta,
 						$respuesta,
 						$Description,
-						$codigo
+						$codigo,
+						$user_id
 					);
 				}
 				$arrayResult = array('type' => 'success', 'message' => $datacodinc[0]['UNEIncompletionAC']);
@@ -232,7 +289,8 @@ class Concodigoincompleto extends CI_Controller
 							$fecha_respuesta,
 							$respuesta,
 							$Description,
-							$codigo
+							$codigo,
+							$user_id
 						);
 					}
 
@@ -265,7 +323,8 @@ class Concodigoincompleto extends CI_Controller
 							$fecha_respuesta,
 							$respuesta,
 							$Description,
-							$codigo
+							$codigo,
+							$user_id
 						);
 					}
 
@@ -291,7 +350,8 @@ class Concodigoincompleto extends CI_Controller
 						$fecha_respuesta,
 						$respuesta,
 						$Description,
-						$codigo
+						$codigo,
+						$user_id
 					);
 				}
 				$arrayResult = array('type' => 'success', 'message' => $datacodinc[0]['UNEIncompletionAC']);
@@ -316,7 +376,8 @@ class Concodigoincompleto extends CI_Controller
 						$fecha_respuesta,
 						$respuesta,
 						$Description,
-						$codigo
+						$codigo,
+						$user_id
 					);
 				}
 				$arrayResult = array('type' => 'error', 'message' => 'Pendiente no es imputable al cliente.');

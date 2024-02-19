@@ -15,7 +15,7 @@ class Modelosoportegpon extends CI_Model
 
 			$sql = "SELECT id_soporte, tarea, arpon, nap, hilo, port_internet_1, port_internet_2, port_internet_3, port_internet_4, port_television_1, port_television_2, port_television_3, port_television_4, numero_contacto, nombre_contacto, unepedido, tasktypecategory, unemunicipio, uneproductos, datoscola, engineer_id, engineer_name, mobile_phone, serial, mac, tipo_equipo, velocidad_navegacion, user_id_firebase, request_id_firebase, user_identification_firebase, status_soporte, fecha_solicitud_firebase, fecha_creado, respuesta_soporte, observacion, login, fecha_respuesta, observacion_terreno
 			FROM soporte_gpon 
-			WHERE tarea = ? AND fecha_solicitud_firebase >= ? AND status_soporte = 0;";
+			WHERE tarea = ? AND fecha_solicitud_firebase >= ? AND status_soporte IN ( 0 , 2);";
 			$query = $this->db->query($sql, array($tarea, $fecha));
 
 			$res = ($query->num_rows() > 0) ? $query->row_array() : 0 ;

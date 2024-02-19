@@ -38,13 +38,13 @@ class Conbb8 extends CI_Controller
 		$hora_actual = date('H:i');
 
 		$hora_inicio = '07:00';
-		$hora_fin = '20:00';
+		$hora_fin = '19:00';
 
-		/*if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
-			$arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+		if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+			$arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
 			echo json_encode($arrayResult);
 			die();
-		}*/
+		}
 
 		if (!$payload) {
 			$arrayResult = array('type' => 'errorAuth', 'message' => 'Token no valido.');
@@ -84,54 +84,78 @@ class Conbb8 extends CI_Controller
 				echo json_encode($arrayResult);
 				die();
 			}
-
-			$this->Modelobb8->contador();
+			$modulo = 'bb8 aplicación mobil';
+			$this->Modelobb8->contador($modulo);
 
 			$arrayResult = array('type' => 'success', 'message' => $databb8);
 			echo json_encode($arrayResult);
 		} else {
-			$response = array();
+
+
 			$ch = curl_init();
+			//curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetClick/$pedido");
 			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV/Buscar/$pedido");
+
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			$data = curl_exec($ch);
-			//var_dump($data);exit();
 			curl_close($ch);
 
 			$databb8 = json_decode($data, TRUE);
-
-			$miArray = ['GIS' => $databb8['ID_GIS'], 'TYPE' => $databb8['Type']];
-			foreach ($databb8['Equipos'] as &$equipo) {
-				$equipo = array_merge($miArray, $equipo);
-			}
-
 			$gis = $databb8['ID_GIS'];
 
+			/**
+			 * velocidad
+			 */
 			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetPlanBaMSS/$gis");
+			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetPlanBaMSS/$pedido");
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			$data = curl_exec($ch);
-			//var_dump($data);exit();
 			curl_close($ch);
 
 			$dataDecode = json_decode($data, TRUE);
 
+			if (!$dataDecode) {
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetPlanBaMSS/$gis");
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				$data = curl_exec($ch);
+				curl_close($ch);
+
+				$dataDecode = json_decode($data, TRUE);
+			}
+
+			//var_dump($dataDecode);die();
+
+			$vel = [];
 			foreach ($dataDecode as $elemento) {
 				if ($elemento["VALUE_LABEL"] == "Qty") {
-					$r = [
-						"VELOCIDAD" => $elemento['VALID_VALUE']
-					];
+					$vel["VELOCIDAD"] = $elemento['VALID_VALUE'];
+				}
+				if (!$elemento["LINEA"]) {
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetPlanTOMSS/$pedido");
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_HEADER, 0);
+					$data = curl_exec($ch);
+					curl_close($ch);
+
+					$dataDecode = json_decode($data, TRUE);
+					foreach ($dataDecode as $elemento) {
+						if ($elemento["LINEA"]) {
+							$vel["LINEA"] = $elemento['LINEA'];
+						}
+					}
+				} else {
+					$vel["LINEA"] = $elemento['LINEA'];
 				}
 			}
 
-			foreach ($databb8['Equipos'] as &$equipo) {
-				$equipo = array_merge($r, $equipo);
-			}
-
-			$response = $databb8['Equipos'];
-
+			/**
+			 * paquetes
+			 */
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetPlanTVMSS/$pedido");
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -139,29 +163,65 @@ class Conbb8 extends CI_Controller
 			$data = curl_exec($ch);
 			curl_close($ch);
 
-			$b = json_decode($data, TRUE);
-			//$response[] = $b;
+			$dataDecode = json_decode($data, TRUE);
 
+			if (!$dataDecode) {
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetPlanTVMSS/$gis");
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				$data = curl_exec($ch);
+				curl_close($ch);
+				$dataDecode = json_decode($data, TRUE);
+			}
+
+			$paquetes = [];
+			foreach ($dataDecode as $elemento) {
+				if ($elemento["ITEM_ALIAS"] === "PaqueteTV") {
+					$paquetes[] = $elemento["VALUE_LABEL"] . " | " . $elemento["VALID_VALUE"];
+				}
+			}
+
+			$paquetesString = implode(' - ', $paquetes);
+
+			/**
+			 * equipos
+			 */
 			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetPlanTOMSS/$pedido");
+			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/nuevoBB8/$gis");
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			$data = curl_exec($ch);
 			curl_close($ch);
 
-			$c = json_decode($data, TRUE);
-			//$response[] = $c;
+			$dataDecode = json_decode($data, TRUE);
 
-			if (count($response) == 0) {
+			$equipos = [];
+			foreach ($dataDecode as $elemento) {
+				$equipos[] = [
+					"SERIAL" => $elemento["SERIAL"],
+					"MAC" => $elemento["MAC"],
+					"MARCA" => $elemento["MARCA"],
+				];
+			}
+
+
+			foreach ($equipos as &$equipo) {
+				$equipo['PAQUETE'] = $paquetesString;
+				$equipo['VELOCIDAD'] = $vel["VELOCIDAD"];
+				$equipo['LINEA'] = $vel["LINEA"];
+			}
+
+			if (count($equipos) == 0) {
 				$arrayResult = array('type' => 'error', 'message' => 'Sin datos para listar.');
 				echo json_encode($arrayResult);
 				die();
 			}
 
+			$modulo = 'Datos técnicos';
+			$this->Modelobb8->contador($modulo);
 
-			//$this->Modelobb8->contador();
-
-			$arrayResult = array('type' => 'success', 'message' => $response);
+			$arrayResult = array('type' => 'success', 'message' => $equipos);
 			echo json_encode($arrayResult);
 
 		}

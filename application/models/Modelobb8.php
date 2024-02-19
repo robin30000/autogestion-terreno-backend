@@ -9,12 +9,12 @@ use Firebase\JWT\Key;
 class Modelobb8 extends CI_Model
 {
 
-	public function contador()
+	public function contador($modulo)
 	{
 
 		try {
 			$fecha = date('Y-m-d');
-			$modulo = 'bb8 aplicación mobil';
+			//$modulo = 'bb8 aplicación mobil';
 			$sql = "SELECT * FROM Contador WHERE Fecha = ? AND Modulo = ?";
 			$query = $this->db->query($sql, array($fecha, $modulo));
 			$res = ($query->num_rows() > 0) ? $query->row_array() : 0 ;

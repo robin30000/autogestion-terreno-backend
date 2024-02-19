@@ -37,12 +37,13 @@ class ModeloMesasNacionales extends CI_Model
 		$accion,
         $region,
         $area,
-		$ata
+		$ata,
+		$UNETecnologias
 	) {
 		try {
 			$sql   = "insert into mesas_nacionales(hora_ingreso, estado, nombre_tecnico, num_contacto_tecnico, cc_tecnico,
-                             observacion_tecnico, tarea, pedido, TaskTypeCategory, UneSourceSystem, mesa, accion_tecnico, region, area, activacion_ata)
-			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                             observacion_tecnico, tarea, pedido, TaskTypeCategory, UneSourceSystem, mesa, accion_tecnico, region, area, activacion_ata, tecnologia)
+			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?);";
 			$query = $this->db->query($sql,
 				[
 					date('Y-m-d H:i:s'),
@@ -59,7 +60,8 @@ class ModeloMesasNacionales extends CI_Model
 					$accion,
                     $region,
                     $area,
-					$ata
+					$ata,
+					$UNETecnologias
 				]
 			);
 

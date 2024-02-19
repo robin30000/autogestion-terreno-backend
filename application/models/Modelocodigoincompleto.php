@@ -89,7 +89,7 @@ class Modelocodigoincompleto extends CI_Model
 		try {
 
 			$sql = "UPDATE gestion_codigo_incompleto SET numero_contacto = ?, nombre_contacto = ?, unepedido = ?, tasktypecategory = ?, unemunicipio = ?, uneproductos = ?, engineer_id = ?, engineer_name = ?, mobile_phone = ?, fecha_respuesta = ?, respuesta_gestion = ?, observacion = ?, status_soporte = '1', codigo = ? WHERE tarea = ?;";
-			$query = $this->db->query($sql,...
+			$query = $this->db->query($sql,
 				array(
 					$unetelefonocontacto,
 					$unenombrecontacto,

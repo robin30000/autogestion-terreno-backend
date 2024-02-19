@@ -34,10 +34,10 @@ class Consoportegpon extends CI_Controller
         $hora_actual = date('H:i');
 
         $hora_inicio = '07:00';
-        $hora_fin    = '20:00';
+        $hora_fin    = '19:00';
 
         if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
-            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
             echo json_encode($arrayResult);
             die();
         }
@@ -81,8 +81,9 @@ class Consoportegpon extends CI_Controller
         $val['tarea'] = $tarea;
         $val['infraestructura'] = $validacion[2]['valida'];
         $val['equipo'] = $validacion[5]['valida'];
+        $click = $validacion[9]['valida'];
 
-        if (stripos($tarea, 'sa') === 0) {
+        if (stripos($tarea, 'sa') === 0 || $click === 'inactiva') {
 			$datasoportegpon = $this->Modelosoportegpon->getsoportegponbytask($tarea, $fecha);
 			if (!$datasoportegpon) {
 
@@ -144,6 +145,19 @@ class Consoportegpon extends CI_Controller
 			echo json_encode($arrayResult);
 			die();
 		}
+
+        if (($dataclick[0]['categoria'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false)) {
+            $arrayResult = array('type' => 'error', 'message' => 'Es una tarea de BSC, Debes escalar por el modulo mesas nacionales');
+            echo json_encode($arrayResult);
+            die();
+        }
+
+        if ($dataclick === 3587) {
+            $arrayResult = array('type' => 'error', 'message' => 'Es una tarea de BSC, Debes escalar por el modulo mesas nacionales');
+            echo json_encode($arrayResult);
+            die();
+        }
+        
 		if ($dataclick === 6562) {
 			$arrayResult = ['type' => 'error', 'message' => 'La tarea no es GPON.'];
 			echo json_encode($arrayResult);

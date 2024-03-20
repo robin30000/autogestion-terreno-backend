@@ -91,9 +91,9 @@ class MesasNacionales extends CI_Controller
             $arrayResult = ['type' => 'success', 'message' => 'PRE'];
         } elseif ($dataclick[0]['TaskType'] == 'Cambio_Equipo DTH') {
             $arrayResult = ['type' => 'success', 'message' => 'DTH'];
-        } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false)) {
+        } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false) && ($dataclick[0]['UneSourceSystem'] != 'EDA')) {
             $arrayResult = ['type' => 'success', 'message' => 'BSC'];
-        } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') {
+        } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC' && $dataclick[0]['UneSourceSystem'] != 'EDA') {
             $arrayResult = ['type' => 'success', 'message' => 'BSC'];
         } elseif ($dataclick[0]['UneSourceSystem'] == 'EDA') {
             $arrayResult = ['type' => 'success', 'message' => 'EDA'];
@@ -200,11 +200,13 @@ class MesasNacionales extends CI_Controller
         if ($dataclick1['TaskType'] == 'Reparacion Infraestructura') {
             $mesa = 'Mesa 4';
         } elseif ($dataclick1['TaskType'] == 'Cambio_Equipo DTH') {
-            $mesa = 'Mesa 5';
-        } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false)) {
+            $mesa = 'Mesa 1';
+        } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false) && ($dataclick1['UneSourceSystem'] != 'EDA')) {
             $mesa = 'Mesa 6';
-        } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') {
+        } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') && ($dataclick1['UneSourceSystem'] != 'EDA')) {
             $mesa = 'Mesa 6';
+        } elseif (($dataclick1['UneSourceSystem'] == 'EDA') && ($accion == 'Código de incompleto')) {
+            $mesa = 'Mesa 1';
         } elseif (($dataclick1['UneSourceSystem'] == 'EDA') && ($accion == 'Línea básica' || $accion == 'Cambio de equipo' || $accion == 'Cambio de puerto')) {
             $mesa = 'Mesa 2';
         } elseif (($dataclick1['UneSourceSystem'] == 'EDA' || $dataclick1['UneSourceSystem'] == 'ELT' || $dataclick1['UneSourceSystem'] == 'POE') && ($accion == 'Soporte general')) {

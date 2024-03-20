@@ -19,6 +19,7 @@ class Autenticacion extends CI_Controller
         $this->load->model('Modeloautenticacion');
         $this->load->library('nativesession');
         $this->load->helper('url');
+        $this->load->library('validarjwt');
     }
 
     public function index()
@@ -42,7 +43,7 @@ class Autenticacion extends CI_Controller
             $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
         } elseif (empty($username) || empty($password)) {
             $arrayResult = ['type' => 'error', 'message' => 'No pueden haber campos vacíos, ingrese usuario y clave.'];
-        } elseif (!$version || $version != '22') {
+        } elseif (!$version || $version != '23') {
             $arrayResult = ['type' => 'error', 'message' => 'Comunicate con un administrador para obtener la version actualizada de la aplicación.'];
         } else {
             $valUserQuery = $this->Modeloautenticacion->consultauser($username, $password);
@@ -52,7 +53,7 @@ class Autenticacion extends CI_Controller
             } elseif ($valUserQuery == 2) {
                 $arrayResult = ['type' => 'error', 'message' => 'Clave incorrecta.'];
             } elseif ($valUserQuery == 3) {
-                $arrayResult = ['type' => 'error', 'message' => 'Usuario se encuentra inactivo, comuníquese con el adminstrador.'];
+                $arrayResult = ['type' => 'error', 'message' => 'Usuario se encuentra inactivo, comuníquese con el administrador.'];
             } else {
 
                 /*$pdo = new Connection();
@@ -79,6 +80,7 @@ class Autenticacion extends CI_Controller
                     'login'   => $valUserQuery['login_click'],
                     'celular' => $valUserQuery['celular'],
                     'nombre'  => $valUserQuery['nombre'],
+                    'perfil' => $valUserQuery['perfil'],
                     /*'celular' => $celular,
                     'nombre'  => $nombre,*/
                 ];
@@ -103,7 +105,8 @@ class Autenticacion extends CI_Controller
                 $this->nativesession->set('estado', $valUserQuery['Usuaestadorio']);
                 $this->nativesession->set('Logueado', 'SI'); */
 
-                $valUserQuery['menu'] = $this->menuapp(1);
+                $menu = $this->menuapp1($valUserQuery['perfil']);
+                $valUserQuery['menu'] = $menu;
 
                 $cc  = $valUserQuery['identificacion'];
                 $val = $this->Modeloautenticacion->validaEncuesta($cc);
@@ -200,7 +203,263 @@ class Autenticacion extends CI_Controller
         echo json_encode($arrayResult);
     }
 
-    public function menuapp($opt = 0)
+    public function menuapp1($perfil)
+    {
+
+        if ($perfil === 'supervisor') {
+            $menu = [
+                [
+                    "menuOpt" => 0,
+                    "menuName" => "Inicio",
+                    "menuIcon" => 61703,
+                    "pageName" => "Autogestión Terreno",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 22,
+                    "menuName" => "Consulta tarea",
+                    "menuIcon" => 60239,
+                    "pageName" => "Consulta tarea",
+                    "estado" => true,
+                ], [
+                    "menuOpt" => 20,
+                    "menuName" => "Mesas Nacionales",
+                    "menuIcon" => 984696,
+                    "pageName" => "Mesas Nacionales",
+                    "estado" => true,
+                ], [
+                    "menuOpt" => 5,
+                    "menuName" => "BB8",
+                    "menuIcon" => 61495,
+                    "pageName" => "BB8",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 8,
+                    "menuName" => "Consulta Quejas",
+                    "menuIcon" => 58311,
+                    "pageName" => "Consulta Quejas",
+                    "estado" => true,
+                ],
+            ];
+        } else {
+            $menu = [
+                [
+                    "menuOpt" => 0,
+                    "menuName" => "Inicio",
+                    "menuIcon" => 61703,
+                    "pageName" => "Autogestión Terreno",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 1,
+                    "menuName" => "Contingencias",
+                    "menuIcon" => 984818,
+                    "pageName" => "Contingencias",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 2,
+                    "menuName" => "Soporte GPON",
+                    "menuIcon" => 62245,
+                    "pageName" => "Soporte GPON",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 13,
+                    "menuName" => "Soporte ETP",
+                    "menuIcon" => 62353,
+                    "pageName" => "Soporte ETP",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 20,
+                    "menuName" => "Mesas Nacionales",
+                    "menuIcon" => 984696,
+                    "pageName" => "Mesas Nacionales",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 5,
+                    "menuName" => "BB8",
+                    "menuIcon" => 61495,
+                    "pageName" => "BB8",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 6,
+                    "menuName" => "Códigos",
+                    "menuIcon" => 62122,
+                    "pageName" => "Códigos",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 7,
+                    "menuName" => "Consulta Contingencias",
+                    "menuIcon" => 984035,
+                    "pageName" => "Consulta Contingencias",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 8,
+                    "menuName" => "Consulta Quejas",
+                    "menuIcon" => 58311,
+                    "pageName" => "Consulta Quejas",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 11,
+                    "menuName" => "Registro equipos",
+                    "menuIcon" => 61313,
+                    "pageName" => "Registro equipos",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 9,
+                    "menuName" => "Tips",
+                    "menuIcon" => 60239,
+                    "pageName" => "Tips",
+                    "estado" => true,
+                ],
+            ];
+        }
+
+        return $menu;
+    }
+
+    public function menuapp()
+    {
+
+
+        $jwt = $this->input->get_request_header('x-token', true);
+        $payload = $this->validarjwt->verificarjwtlocal($jwt);
+        $perfil = $payload->perfil;
+
+
+        if ($perfil === 'supervisor') {
+            $menu = [
+                [
+                    "menuOpt" => 0,
+                    "menuName" => "Inicio",
+                    "menuIcon" => 61703,
+                    "pageName" => "Autogestión Terreno",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 22,
+                    "menuName" => "Consulta tarea",
+                    "menuIcon" => 60239,
+                    "pageName" => "Consulta tarea",
+                    "estado" => true,
+                ], [
+                    "menuOpt" => 20,
+                    "menuName" => "Mesas Nacionales",
+                    "menuIcon" => 984696,
+                    "pageName" => "Mesas Nacionales",
+                    "estado" => true,
+                ], [
+                    "menuOpt" => 5,
+                    "menuName" => "BB8",
+                    "menuIcon" => 61495,
+                    "pageName" => "BB8",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 8,
+                    "menuName" => "Consulta Quejas",
+                    "menuIcon" => 58311,
+                    "pageName" => "Consulta Quejas",
+                    "estado" => true,
+                ],
+            ];
+        } else {
+            $menu = [
+                [
+                    "menuOpt" => 0,
+                    "menuName" => "Inicio",
+                    "menuIcon" => 61703,
+                    "pageName" => "Autogestión Terreno",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 1,
+                    "menuName" => "Contingencias",
+                    "menuIcon" => 984818,
+                    "pageName" => "Contingencias",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 2,
+                    "menuName" => "Soporte GPON",
+                    "menuIcon" => 62245,
+                    "pageName" => "Soporte GPON",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 13,
+                    "menuName" => "Soporte ETP",
+                    "menuIcon" => 62353,
+                    "pageName" => "Soporte ETP",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 20,
+                    "menuName" => "Mesas Nacionales",
+                    "menuIcon" => 984696,
+                    "pageName" => "Mesas Nacionales",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 5,
+                    "menuName" => "BB8",
+                    "menuIcon" => 61495,
+                    "pageName" => "BB8",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 6,
+                    "menuName" => "Códigos",
+                    "menuIcon" => 62122,
+                    "pageName" => "Códigos",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 7,
+                    "menuName" => "Consulta Contingencias",
+                    "menuIcon" => 984035,
+                    "pageName" => "Consulta Contingencias",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 8,
+                    "menuName" => "Consulta Quejas",
+                    "menuIcon" => 58311,
+                    "pageName" => "Consulta Quejas",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 11,
+                    "menuName" => "Registro equipos",
+                    "menuIcon" => 61313,
+                    "pageName" => "Registro equipos",
+                    "estado" => true,
+                ],
+                [
+                    "menuOpt" => 9,
+                    "menuName" => "Tips",
+                    "menuIcon" => 60239,
+                    "pageName" => "Tips",
+                    "estado" => true,
+                ],
+            ];
+        }
+
+        $arrayResult = ['type' => 'success', 'message' => $menu];
+        echo json_encode($arrayResult);
+    }
+
+
+    /*public function menuapp($opt = 0)
     {
         $menu = [
             [
@@ -290,5 +549,5 @@ class Autenticacion extends CI_Controller
 
         $arrayResult = ['type' => 'success', 'message' => $menu];
         echo json_encode($arrayResult);
-    }
+    }*/
 }

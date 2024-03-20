@@ -3,8 +3,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 error_reporting(0);
 ini_set('display_errors', 0);
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use jwt\src\JWT;
+use jwt\src\Key;
 
 class Modeloquejasgo extends CI_Model
 {
@@ -84,7 +84,7 @@ class Modeloquejasgo extends CI_Model
 
             $fecha = date('Y-m-d');
             //$fecha = '2023-05-23';
-            $sql   = "SELECT
+            /*$sql   = "SELECT
 							en_gestion,
 							gestion_asesor,
 							accion,
@@ -99,7 +99,23 @@ class Modeloquejasgo extends CI_Model
 						WHERE
 							fecha BETWEEN '$fecha 00:00:00'
 						AND '$fecha 23:59:00'
-						AND cedtecnico = ?";
+						AND cedtecnico = ?";*/
+	        $sql = "SELECT
+					    en_gestion,
+					    gestion_asesor,
+					    accion,
+					    observacion_gestion,
+					    pedido,
+					    fecha_gestion,
+					    id,
+					    fecha,
+					    asesor
+					FROM
+					    quejasgo
+					WHERE
+					    fecha BETWEEN DATE_SUB('$fecha 00:00:00', INTERVAL 3 DAY)
+					    AND '$fecha 23:59:00'
+					    AND cedtecnico = ?";
             $query = $this->db->query($sql, array($user_id));
 
             $res = ($query->num_rows() > 0) ? $query->result_array() : 0;

@@ -1,23 +1,31 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-error_reporting(0);
-ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 class Modeloautenticacion extends CI_Model
 {
 
     public function consultauser($username, $password)
     {
-        $sqlUser = "SELECT login_click FROM tecnicos WHERE login_click = ?;";
-        $valUser = $this->db->query($sqlUser, array($username));
+        $sqlUser = "SELECT login_click FROM tecnicos WHERE login_click = TRIM(?) 
+						UNION
+					SELECT login_click FROM tecnicos_sin_click WHERE login_click = TRIM(?)";
+        $valUser = $this->db->query($sqlUser, array($username, $username));
         if ($valUser->num_rows() > 0) {
-            $sqlEstado = "SELECT estado FROM tecnicos WHERE login_click = ? AND estado = ?;";
-            $valEstado = $this->db->query($sqlEstado, array($username, 1));
+            $sqlEstado = "SELECT estado FROM tecnicos WHERE login_click = TRIM(?) AND estado = ?
+							UNION
+						  SELECT estado FROM tecnicos_sin_click WHERE login_click = TRIM(?) AND estado = ?";
+            $valEstado = $this->db->query($sqlEstado, array($username, 1, $username, 1));
             if ($valEstado->num_rows() > 0) {
-                $sqlUserPass = "SELECT login_click FROM tecnicos WHERE login_click = ? AND password = ?;";
-                $valUserPass = $this->db->query($sqlUserPass, array($username, $password));
+                $sqlUserPass = "SELECT login_click FROM tecnicos WHERE login_click = TRIM(?) AND password = ?
+									UNION 
+								SELECT login_click FROM tecnicos_sin_click WHERE login_click = TRIM(?) AND password = ?";
+                $valUserPass = $this->db->query($sqlUserPass, array($username, $password, $username, $password));
                 if ($valUserPass->num_rows() == 1) {
-                    $sql = "SELECT id, identificacion, nombre, empresa, ciudad, celular, contrato, region, login_click, password, estado FROM tecnicos WHERE login_click = ? AND password = ? AND estado = ?;";
-                    return $this->db->query($sql, array($username, $password, 1))->row_array();
+                    $sql = "SELECT id, identificacion, nombre, empresa, ciudad, celular, contrato, region, login_click, password, estado, perfil FROM tecnicos WHERE login_click = ? AND password = ? AND estado = ? 
+                            	UNION 
+                            SELECT id, identificacion, nombre, empresa, ciudad, celular, contrato, region, login_click, password, estado, perfil FROM tecnicos_sin_click WHERE login_click = ? AND password = ? AND estado = ?;";
+                    return $this->db->query($sql, array($username, $password, 1, $username, $password, 1))->row_array();
                 } else {
                     return 2;
                 }

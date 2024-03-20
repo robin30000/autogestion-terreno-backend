@@ -83,13 +83,26 @@ class Consoportegpon extends CI_Controller
         $val['equipo'] = $validacion[5]['valida'];
         $click = $validacion[9]['valida'];
 
-        if (stripos($tarea, 'sa') === 0 || $click === 'inactiva') {
+        if (stripos($tarea, 'sa') === 0 || $click === 'inactiva' || strpos($tarea, '1-') === 0) {
+            if (strpos($tarea, '1-') === 0){
+                if (strlen($tarea) !== 16) {
+                    $arrayResult = ['type' => 'error', 'message' => 'El pedido debe contener 16 dígitos'];
+                    echo json_encode($arrayResult);
+                    die();
+                }
+
+                $tipo = 'OWS';
+                $pedido  = $tarea;
+            }else{
+                $tipo = '';
+                $pedido  = '';
+            }
 			$datasoportegpon = $this->Modelosoportegpon->getsoportegponbytask($tarea, $fecha);
 			if (!$datasoportegpon) {
 
 				$fecha_solicitud      = date('Y-m-d H:i:s');
 				$request_id           = null;
-				$unepedido            = '';
+				$unepedido            = $pedido;
 				$tasktypecategory     = '';
 				$unemunicipio         = '';
 				$uneproductos         = '';
@@ -101,7 +114,7 @@ class Consoportegpon extends CI_Controller
 				$macs                 = '';
 				$tipoeqs              = '';
 				$planprod             = '';
-				$Tipo                 = '';
+				$Tipo                 = $tipo;
 				$taskType             = '';
 				$area                 = '';
 				$user_id              = $login;
@@ -209,6 +222,12 @@ class Consoportegpon extends CI_Controller
 		$Tipo                 = $dataclick[0]['Name'];
 		$taskType             = $dataclick[0]['TaskType'];
 		$area                 = $dataclick[0]['Area'];
+
+        if (strpos(strtoupper($taskType), 'COBRE') !== false) {
+            $taskType = 'COBRE';
+        } else {
+            $taskType = 'GPON';
+        }
 
 		$serials  = implode(',', array_unique(array_column($dataclick, 'SerialNo')));
 		$macs     = implode(',', array_unique(array_column($dataclick, 'MAC')));

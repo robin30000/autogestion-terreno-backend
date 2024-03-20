@@ -158,6 +158,18 @@ class Concontingencia extends CI_Controller
         if (count($dataclick) > 0) {
             $dataclick = $dataclick[0];
 
+            if (($dataclick['categoria'] == 'Aseguramiento') && ($tipocontingencia == 'Cambio Domicilio')){
+                $arrayResult = array('type' => 'error', 'message' => 'Cambio Domicilio no aplica para Aseguramiento, validar tipo contingencia');
+                echo json_encode($arrayResult);
+                die();
+            }
+
+            if (($dataclick['categoria'] == 'Aprovisionamiento') && ($tipocontingencia == 'Cambio de Equipo')){
+                $arrayResult = array('type' => 'error', 'message' => 'Cambio de Equipo no aplica para Aprovisionamiento, validar tipo contingencia');
+                echo json_encode($arrayResult);
+                die();
+            }
+
             if (($dataclick['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick['typeTask'], 'Bronce') !== false)) {
                 $arrayResult = array('type' => 'error', 'message' => 'Es una tarea de BSC, Debes escalar por el modulo mesas nacionales');
                 echo json_encode($arrayResult);

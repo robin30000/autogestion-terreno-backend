@@ -65,8 +65,6 @@ $route['listacontingencia'] = 'master/viewlistacontingencia';
 $route['ingresar'] = 'Autenticacion/autenticar';
 $route['validarjwt'] = 'Autenticacion/verificarjwt';
 $route['validarmenu'] = 'Autenticacion/menuapp';
-$route['recoverPass'] = 'Autenticacion/recoverPass';
-$route['updatePass'] = 'Autenticacion/updatePass';
 
 /* SOPORTE GPON */
 $route['postsoportegpon'] = 'Consoportegpon/postsoportegpon';
@@ -123,6 +121,12 @@ $route['getsoporteMnbyuser'] = 'MesasNacionales/getsoporteMnbyuser';
 
 $route['validaEncuesta'] = 'EncuestaTecnico/validaEncuesta';
 $route['getEncuesta'] = 'EncuestaTecnico/getEncuesta';
+
+/**
+ * TAREA SUPERVISOR
+ */
+
+$route['tareasupervisor'] = 'TareaSupervisor/tareasupervisor';
 
 
 

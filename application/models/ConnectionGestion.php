@@ -2,7 +2,7 @@
 
 date_default_timezone_set('America/Bogota');
 
-class Connection extends PDO
+class ConnectionGestion extends PDO
 {
 	private $tipo_de_base = 'sqlsrv';
 	private $host = '10.100.74.235,1439';

@@ -118,13 +118,14 @@ class Consoportegpon extends CI_Controller
 				$taskType             = '';
 				$area                 = '';
 				$user_id              = $login;
+				$proveedor            = '';
 
 				$ressoportegpon = $this->Modelosoportegpon->postsoportegpon(strtoupper($tarea), $arpon, $nap, $hilo, $internet_port1, $internet_port2, $internet_port3, $internet_port4,
 					$tv_port1,
 					$tv_port2, $tv_port3, $tv_port4, $numero_contacto, $nombre_contacto, $observacion, $user_id, $request_id, $user_identification, $fecha_solicitud, $unepedido,
 					$tasktypecategory, $unemunicipio, $uneproductos, $engineer_id, $engineer_name, $mobile_phone, $velocidad_navegacion, $serials, $macs, $tipoeqs, $planprod,
 					$Tipo,
-					$taskType, $area);
+					$taskType, $area, $proveedor);
 
 				if ($ressoportegpon == 1) {
 					$arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];
@@ -222,6 +223,7 @@ class Consoportegpon extends CI_Controller
 		$Tipo                 = $dataclick[0]['Name'];
 		$taskType             = $dataclick[0]['TaskType'];
 		$area                 = $dataclick[0]['Area'];
+		$proveedor             = $dataclick[0]['TipoProveedor'];
 
         if (strpos(strtoupper($taskType), 'COBRE') !== false) {
             $taskType = 'COBRE';
@@ -256,7 +258,7 @@ class Consoportegpon extends CI_Controller
 			$ressoportegpon = $this->Modelosoportegpon->postsoportegpon($tarea, $arpon, $nap, $hilo, $internet_port1, $internet_port2, $internet_port3, $internet_port4, $tv_port1,
 				$tv_port2, $tv_port3, $tv_port4, $numero_contacto, $nombre_contacto, $observacion, $user_id, $request_id, $user_identification, $fecha_solicitud, $unepedido,
 				$tasktypecategory, $unemunicipio, $uneproductos, $engineer_id, $engineer_name, $mobile_phone, $velocidad_navegacion, $serials, $macs, $tipoeqs, $planprod, $Tipo,
-				$taskType, $area);
+				$taskType, $area, $proveedor);
 
 			if ($ressoportegpon == 1) {
 				$arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];

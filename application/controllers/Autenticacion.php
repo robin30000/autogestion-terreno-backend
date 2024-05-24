@@ -43,7 +43,7 @@ class Autenticacion extends CI_Controller
             $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
         } elseif (empty($username) || empty($password)) {
             $arrayResult = ['type' => 'error', 'message' => 'No pueden haber campos vacíos, ingrese usuario y clave.'];
-        } elseif (!$version || $version != '23') {
+        } elseif ($version != '251') {
             $arrayResult = ['type' => 'error', 'message' => 'Comunicate con un administrador para obtener la version actualizada de la aplicación.'];
         } else {
             $valUserQuery = $this->Modeloautenticacion->consultauser($username, $password);
@@ -229,9 +229,9 @@ class Autenticacion extends CI_Controller
                     "estado" => true,
                 ], [
                     "menuOpt" => 5,
-                    "menuName" => "BB8",
+                    "menuName" => "Consultas",
                     "menuIcon" => 61495,
-                    "pageName" => "BB8",
+                    "pageName" => "Consultas",
                     "estado" => true,
                 ],
                 [
@@ -281,9 +281,9 @@ class Autenticacion extends CI_Controller
                 ],
                 [
                     "menuOpt" => 5,
-                    "menuName" => "BB8",
+                    "menuName" => "Consultas",
                     "menuIcon" => 61495,
-                    "pageName" => "BB8",
+                    "pageName" => "Consultas",
                     "estado" => true,
                 ],
                 [
@@ -359,9 +359,9 @@ class Autenticacion extends CI_Controller
                     "estado" => true,
                 ], [
                     "menuOpt" => 5,
-                    "menuName" => "BB8",
+                    "menuName" => "Consultas",
                     "menuIcon" => 61495,
-                    "pageName" => "BB8",
+                    "pageName" => "Consultas",
                     "estado" => true,
                 ],
                 [
@@ -411,9 +411,9 @@ class Autenticacion extends CI_Controller
                 ],
                 [
                     "menuOpt" => 5,
-                    "menuName" => "BB8",
+                    "menuName" => "Consultas",
                     "menuIcon" => 61495,
-                    "pageName" => "BB8",
+                    "pageName" => "Consultas",
                     "estado" => true,
                 ],
                 [

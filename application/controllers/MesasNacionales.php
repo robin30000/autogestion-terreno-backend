@@ -31,7 +31,7 @@ class MesasNacionales extends CI_Controller
         $hora_actual = date('H:i');
 
         $hora_inicio = '07:00';
-        $hora_fin = '19:00';
+        $hora_fin = '20:00';
 
         if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
             $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
@@ -55,6 +55,51 @@ class MesasNacionales extends CI_Controller
             die();
         }
 
+        if ($tarea === '00000000') {
+            $cc_tecnico = $payload->iduser;
+            $dataMn = $this->ModeloMesasNacionales->sinTrabajo($tarea, $cc_tecnico);
+            if (!$dataMn) {
+                $numero_contacto = $payload->celular;
+                $nombre_contacto = $payload->nombre;
+                $cc_tecnico = $payload->iduser;
+                $observacion = 'Sin trabajo';
+                $ata = '';
+
+                $unepedido = '';
+                $tasktypecategory = '';
+                $uneSourceSystem = '';
+                $region = '';
+                $area = '';
+                $mesa = 'Geco';
+                $UNETecnologias = '';
+                $tipoSolicitud = 'N/A';
+                $accion = 'Sin trabajo';
+                $this->ModeloMesasNacionales->postPedidoMn(
+                    $nombre_contacto,
+                    $numero_contacto,
+                    $cc_tecnico,
+                    $observacion,
+                    $tarea,
+                    $unepedido,
+                    $tasktypecategory,
+                    $uneSourceSystem,
+                    $mesa,
+                    $accion,
+                    $region,
+                    strtoupper($area),
+                    $ata,
+                    $UNETecnologias,
+                    $tipoSolicitud);
+                $arrayResult = ['type' => 'success', 'message' => 'SINTRABAJO'];
+                echo json_encode($arrayResult);
+                die();
+            } else {
+                $arrayResult = ['type' => 'success', 'message' => 'SINTRABAJO'];
+                echo json_encode($arrayResult);
+                die();
+            }
+        }
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV_DEV/validaPedidoMn/$tarea");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -73,24 +118,29 @@ class MesasNacionales extends CI_Controller
         }
 
         $dataclick = json_decode($data, true);
-        $pattern = '/\b(B2B|Recuperacion|Corte|Reconexion|Mantenimiento)\b/i';
-        /*$arrayResult = ['type' => 'success', 'message' => var_dump($dataclick)];
-        echo json_encode($arrayResult);
-        die();*/
+
+        /**
+         * Cambio_Equipo DTH -->Light
+         * Reparacion DTH -->Light
+         * Precableado -->MEDIO
+         * Extension HFC -->MEDIO
+         * Modificacion HFC -->MEDIO
+         * Cambio_Equipo HFC -->MEDIO
+         */
 
 
         if (!$dataclick) {
             $arrayResult = ['type' => 'error', 'message' => 'La tarea no existe. validar tarea e intentar nuevamente.'];
-        } /*elseif ($dataclick == 5555) {
-			$arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];*/
-        elseif ($dataclick[0]['Estado'] != 'En Sitio') {
+        } elseif ($dataclick[0]['Estado'] != 'En Sitio') {
             $arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];
-        } /*elseif (preg_match($pattern, $dataclick[0]['TaskTypeCategory'])) {
-			$arrayResult = ['type' => 'error', 'message' => 'El tipo de tarea no aplica'];
-		}*/ elseif ($dataclick[0]['TaskType'] == 'Reparacion Infraestructura') {
+        } elseif ($dataclick[0]['UneSourceSystem'] == 'ETP') {
+            $arrayResult = ['type' => 'error', 'message' => 'Este caso dede ser escalado a soporte ETP'];
+        } elseif ($dataclick[0]['TaskType'] == 'Reparacion Infraestructura') {
             $arrayResult = ['type' => 'success', 'message' => 'PRE'];
-        } elseif ($dataclick[0]['TaskType'] == 'Cambio_Equipo DTH') {
-            $arrayResult = ['type' => 'success', 'message' => 'DTH'];
+        } elseif ($dataclick[0]['TaskType'] == 'Cambio_Equipo DTH' || $dataclick[0]['TaskType'] == 'Reparacion DTH') {
+            $arrayResult = ['type' => 'success', 'message' => 'GECOLIGHT'];
+        } elseif ($dataclick[0]['TaskType'] == 'Precableado' || $dataclick[0]['TaskType'] == 'Modificacion HFC' || $dataclick[0]['TaskType'] == 'Cambio_Equipo HFC' || $dataclick[0]['TaskType'] == 'Extension HFC') {
+            $arrayResult = ['type' => 'success', 'message' => 'GECOMEDIO'];
         } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false) && ($dataclick[0]['UneSourceSystem'] != 'EDA')) {
             $arrayResult = ['type' => 'success', 'message' => 'BSC'];
         } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC' && $dataclick[0]['UneSourceSystem'] != 'EDA') {
@@ -102,6 +152,7 @@ class MesasNacionales extends CI_Controller
         } else {
             $arrayResult = ['type' => 'error', 'message' => 'No aplica UneSourceSystem'];
         }
+
 
         echo json_encode($arrayResult);
         die();
@@ -137,9 +188,26 @@ class MesasNacionales extends CI_Controller
         $observacion = $reqjson['observacion'];
         $ata = $reqjson['ata'];
 
+        $tipoSolicitud = 'N/A';
         $macSale = trim(htmlentities($reqjson['macSale'], ENT_QUOTES));
         $macEntra = trim(htmlentities($reqjson['macEntra'], ENT_QUOTES));
         $accion = $reqjson['accion'] ?? 'Infraestructura';
+        $accionesValidas = array(
+            'Requiere escalera (Realizar acometida)',
+            'No corresp. a precableado o extensión',
+            'Ubicar Usuario',
+            'Actividad requiere escalera',
+            'Actividad requiere herramientas',
+            'Actividad requiere Materiales',
+            'No corresponde a cambio de equipo',
+            'Cambio de distrito',
+            'Nivelar ruta lejana'
+        );
+
+        if (in_array($accion, $accionesValidas)) {
+            $tipoSolicitud = $reqjson['tipoSolicitud'];
+        }
+
         $macSale = str_replace('-', ',', $macSale);
         $macEntra = str_replace('-', ',', $macEntra);
         $dataclick1 = $dataclick[0];
@@ -158,6 +226,7 @@ class MesasNacionales extends CI_Controller
                 $area = '';
                 $mesa = 'Mesa 1';
                 $UNETecnologias = '';
+                $tipoSolicitud = '';
 
                 $resMn = $this->ModeloMesasNacionales->postPedidoMn(
                     $nombre_contacto,
@@ -173,7 +242,8 @@ class MesasNacionales extends CI_Controller
                     $region,
                     strtoupper($area),
                     $ata,
-                    $UNETecnologias);
+                    $UNETecnologias,
+                    $tipoSolicitud);
 
                 if ($resMn) {
                     $arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];
@@ -186,21 +256,15 @@ class MesasNacionales extends CI_Controller
             echo json_encode($arrayResult);
             die();
         } elseif ($dataclick1['Estado'] != 'En Sitio') {
-            $arrayResult = ['type' => 'error', 'message' => 'La tarea ya no se encuentra en sitio'];
-            echo json_encode($arrayResult);
-            die();
-        }
-
-
-        /*$arrayResult = ['type' => 'error', 'message' => var_dump($dataclick1)];
-        echo json_encode($arrayResult);
-        die();*/
-
+			$arrayResult = ['type' => 'error', 'message' => 'La tarea ya no se encuentra en sitio'];
+			echo json_encode($arrayResult);
+			die();
+		}
 
         if ($dataclick1['TaskType'] == 'Reparacion Infraestructura') {
             $mesa = 'Mesa 4';
-        } elseif ($dataclick1['TaskType'] == 'Cambio_Equipo DTH') {
-            $mesa = 'Mesa 1';
+        } elseif (in_array($accion, $accionesValidas)) {
+            $mesa = 'Geco';
         } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') && (strpos($dataclick[0]['TaskType'], 'Bronce') !== false) && ($dataclick1['UneSourceSystem'] != 'EDA')) {
             $mesa = 'Mesa 6';
         } elseif (($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') && ($dataclick1['UneSourceSystem'] != 'EDA')) {
@@ -295,7 +359,8 @@ class MesasNacionales extends CI_Controller
                 $region,
                 $area,
                 $ata,
-                $UNETecnologias);
+                $UNETecnologias,
+                $tipoSolicitud);
 
             if ($resMn) {
                 $arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];

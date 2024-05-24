@@ -54,7 +54,9 @@ class ConQuejas extends CI_Controller {
         if ($dataquejas != 0) {
             $arrayResult = array('type' => 'success', 'message' => array($dataquejas));
         } else {
+            //$dataquejas = ['SS' => 'N/A','NOMBRE_CUENTA' => 'N/A','IDENTIFICACION' => 'N/A','CELULAR' => 'N/A','FIJO' => 'N/A','NUMERO_CUN' => 'N/A','EMAIL' => 'N/A','DIRECCION' => 'N/A','DESCRIPCION' => 'N/A'];
             $arrayResult = array('type' => 'error', 'message' => 'No hay datos para listar');
+            //$arrayResult = array('type' => 'success', 'message' => array($dataquejas));
         }
 
         echo json_encode($arrayResult);

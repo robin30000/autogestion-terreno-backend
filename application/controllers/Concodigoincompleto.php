@@ -176,8 +176,15 @@ class Concodigoincompleto extends CI_Controller
 			die();
 
 		} else {
+			$task = strtoupper($tarea);
+			//$posicion = strpos($task, "ret");
+			if (stripos($task, 'RET') === 0) {
+				$ret = 1;
+			} else {
+				$ret = 0;
+			}
 			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV_DEV/BuscarCodInc/$tarea");
+			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV_DEV/BuscarCodInc/$task");
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			$data = curl_exec($ch);
@@ -214,6 +221,41 @@ class Concodigoincompleto extends CI_Controller
 			$to_time = strtotime(date('Y-m-d H:i:s'));
 			$from_time = strtotime($datacodinc[0]['TimeCreated']);
 			$minutes = round(abs($to_time - $from_time) / 60, 0);
+
+
+			if ($ret){
+				if ($datacodinc[0]['Estado'] != 'En Sitio') {
+					$arrayResult = array('type' => 'error', 'message' => 'Debes estar en sitio para continuar.');
+					echo json_encode($arrayResult);
+					die();
+				}
+
+				$datagestioncodinc = $this->Modelocodigoincompleto->getgestioncodigoincompletotarea($tarea);
+				if (!$datagestioncodinc) {
+					$this->Modelocodigoincompleto->postgestioncodigoincompleto(
+						$unepedido,
+						$unemunicipio,
+						$uneproductos,
+						$engineerid,
+						$engineername,
+						$unenombrecontacto,
+						$unetelefonocontacto,
+						$tasktypecategory,
+						$mobilephone,
+						$tarea,
+						$fecha,
+						$fecha_respuesta,
+						$respuesta,
+						$Description,
+						$codigo,
+						$user_id
+					);
+				}
+				$arrayResult = array('type' => 'success', 'message' => $datacodinc[0]['UNEIncompletionAC']);
+				echo json_encode($arrayResult);
+				die();
+
+			}
 
 			if ($appointmentStart > $fecha) {
 				$arrayResult = array('type' => 'error', 'message' => 'Cliente posee una cita programada posterior.');

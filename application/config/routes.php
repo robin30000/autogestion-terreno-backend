@@ -77,6 +77,7 @@ $route['gettareagpon'] = 'Concontingencia/gettareagpon';
 
 /* BB8 */
 $route['getbb8'] = 'Conbb8/getbb8';
+$route['getbb8Puertos'] = 'Conbb8/getbb8Puertos';
 
 /* CODIGO INCOMPLETO */
 $route['getcodigoincompleto'] = 'Concodigoincompleto/getcodigoincompleto';

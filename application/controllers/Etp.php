@@ -25,13 +25,13 @@ class Etp extends CI_Controller
     public function validaPedidoETP()
     {
 
-        $jwt     = $this->input->get_request_header('x-token', true);
+        $jwt = $this->input->get_request_header('x-token', true);
         $reqjson = json_decode($this->input->raw_input_stream, true);
 
         $hora_actual = date('H:i');
 
         $hora_inicio = '07:00';
-        $hora_fin    = '19:00';
+        $hora_fin = '19:00';
 
         if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
             $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
@@ -81,6 +81,9 @@ class Etp extends CI_Controller
          */
 
         $dataclick = $dataclick[0];
+        /*$arrayResult = ['type' => 'success', 'message' => var_dump($dataclick)];
+        echo json_encode($arrayResult);
+        die();*/
 
         if ($dataclick == 404) {
             $arrayResult = ['type' => 'error', 'message' => 'Pedido no existe.'];
@@ -91,6 +94,10 @@ class Etp extends CI_Controller
                 $arrayResult = ['type' => 'success', 'message' => 'GPON'];
             } elseif (strrpos($dataclick['Infraestructura1'], 'ARPON') || strrpos($dataclick['Infraestructura1'], 'OLT')) {
                 $arrayResult = ['type' => 'success', 'message' => 'GPON'];
+            } elseif ($dataclick['TaskType'] == 'Cambio_Equipo DTH' || $dataclick['TaskType'] == 'Reparacion DTH') {
+                $arrayResult = ['type' => 'success', 'message' => 'ETPLIGHT'];
+            } elseif ($dataclick['TaskType'] == 'Precableado' || $dataclick['TaskType'] == 'Modificacion HFC' || $dataclick['TaskType'] == 'Cambio_Equipo HFC' || $dataclick['TaskType'] == 'Extension HFC') {
+                $arrayResult = ['type' => 'success', 'message' => 'ETPMEDIO'];
             } else {
                 $arrayResult = ['type' => 'success', 'message' => 'OTRO'];
             }
@@ -105,9 +112,9 @@ class Etp extends CI_Controller
 
     public function postPedidoETP()
     {
-        $fecha   = date('Y-m-d');
-        $fecha   = $fecha . ' 00:00:00';
-        $jwt     = $this->input->get_request_header('x-token', true);
+        $fecha = date('Y-m-d');
+        $fecha = $fecha . ' 00:00:00';
+        $jwt = $this->input->get_request_header('x-token', true);
         $reqjson = json_decode($this->input->raw_input_stream, true);
         $payload = $this->validarjwt->verificarjwtlocal($jwt);
 
@@ -128,10 +135,10 @@ class Etp extends CI_Controller
 
         $dataclick = json_decode($data, true);
         $dataclick = (array)$dataclick;
-        $accion    = $reqjson['accion'];
-        $arpon     = trim(htmlentities($reqjson['arpon'], ENT_QUOTES));
-        $nap       = trim(htmlentities($reqjson['nap'], ENT_QUOTES));
-        $hilo      = trim(htmlentities($reqjson['hilo'], ENT_QUOTES));
+        $accion = $reqjson['accion'];
+        $arpon = trim(htmlentities($reqjson['arpon'], ENT_QUOTES));
+        $nap = trim(htmlentities($reqjson['nap'], ENT_QUOTES));
+        $hilo = trim(htmlentities($reqjson['hilo'], ENT_QUOTES));
         $replanteo = trim(htmlentities($reqjson['replanteo'], ENT_QUOTES));
         //$accion    = trim(htmlentities($reqjson['accion'], ENT_QUOTES));
 
@@ -149,7 +156,7 @@ class Etp extends CI_Controller
         $validacion = $this->ModeloEtp->validacionesContingecias();
 
         $valEquipo = $validacion[6]['valida'];
-        $valInfra  = $validacion[7]['valida'];
+        $valInfra = $validacion[7]['valida'];
 
         if ($dataclick[0] == 500) {
             $arrayResult = ['type' => 'error', 'message' => 'Tarea no existe en click, valida por favor mas tarde.'];
@@ -412,11 +419,11 @@ class Etp extends CI_Controller
                                         }
                                     }
 
-	                                if ($validaPass < 1) {
-		                                $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
-		                                echo json_encode($arrayResult);
-		                                die();
-	                                }
+                                    if ($validaPass < 1) {
+                                        $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
+                                        echo json_encode($arrayResult);
+                                        die();
+                                    }
                                 } else {
                                     $validaPass = 1;
                                 }
@@ -526,46 +533,46 @@ class Etp extends CI_Controller
         }*/
 
 
-        $internet_port1  = trim(htmlentities($reqjson['internet_port1'], ENT_QUOTES));
-        $internet_port2  = trim(htmlentities($reqjson['internet_port2'], ENT_QUOTES));
-        $internet_port3  = trim(htmlentities($reqjson['internet_port3'], ENT_QUOTES));
-        $internet_port4  = trim(htmlentities($reqjson['internet_port4'], ENT_QUOTES));
-        $tv_port1        = trim(htmlentities($reqjson['tv_port1'], ENT_QUOTES));
-        $tv_port2        = trim(htmlentities($reqjson['tv_port2'], ENT_QUOTES));
-        $tv_port3        = trim(htmlentities($reqjson['tv_port3'], ENT_QUOTES));
-        $tv_port4        = trim(htmlentities($reqjson['tv_port4'], ENT_QUOTES));
+        $internet_port1 = trim(htmlentities($reqjson['internet_port1'], ENT_QUOTES));
+        $internet_port2 = trim(htmlentities($reqjson['internet_port2'], ENT_QUOTES));
+        $internet_port3 = trim(htmlentities($reqjson['internet_port3'], ENT_QUOTES));
+        $internet_port4 = trim(htmlentities($reqjson['internet_port4'], ENT_QUOTES));
+        $tv_port1 = trim(htmlentities($reqjson['tv_port1'], ENT_QUOTES));
+        $tv_port2 = trim(htmlentities($reqjson['tv_port2'], ENT_QUOTES));
+        $tv_port3 = trim(htmlentities($reqjson['tv_port3'], ENT_QUOTES));
+        $tv_port4 = trim(htmlentities($reqjson['tv_port4'], ENT_QUOTES));
         $numero_contacto = $payload->celular;
         $nombre_contacto = $payload->nombre;
-        $cc_tecnico      = $payload->cc;
+        $cc_tecnico = $payload->cc;
         //$nombre_contacto = trim(htmlentities($reqjson['nombre_contacto'], ENT_QUOTES));
         $observacion = $reqjson['observacion'];
 
-        $macSale  = trim(htmlentities($reqjson['macSale'], ENT_QUOTES));
+        $macSale = trim(htmlentities($reqjson['macSale'], ENT_QUOTES));
         $macEntra = trim(htmlentities($reqjson['macEntra'], ENT_QUOTES));
-        $macSale  = str_replace('-', ',', $macSale);
+        $macSale = str_replace('-', ',', $macSale);
         $macEntra = str_replace('-', ',', $macEntra);
 
 
-        $dataclick1             = $dataclick[0];
-        $tecnico_cc_solicita    = $payload->iduser;
+        $dataclick1 = $dataclick[0];
+        $tecnico_cc_solicita = $payload->iduser;
         $tecnico_login_solicita = $payload->login;
 
-        $unepedido        = $dataclick1['UNEPedido'];
+        $unepedido = $dataclick1['UNEPedido'];
         $tasktypecategory = $dataclick1['TaskTypeCategory'];
-        $unemunicipio     = $dataclick1['UNEMunicipio'];
-        $uneproductos     = $dataclick1['UNEProductos'];
-        $engineer_id      = $dataclick1['EngineerID'];
-        $engineer_name    = $dataclick1['EngineerName'];
-        $mobile_phone     = $dataclick1['MobilePhone'];
-        $tipo             = $dataclick1['TipoEquipo'];
-        $SSID             = $dataclick1['UNEPassword'];
-        $RTA              = $dataclick1['RTA'];
-        $RTA2             = $dataclick1['RTA2'];
-        $RTA3             = $dataclick1['RTA3'];
-        $estado_equipo    = $dataclick1['estado_equipo'];
+        $unemunicipio = $dataclick1['UNEMunicipio'];
+        $uneproductos = $dataclick1['UNEProductos'];
+        $engineer_id = $dataclick1['EngineerID'];
+        $engineer_name = $dataclick1['EngineerName'];
+        $mobile_phone = $dataclick1['MobilePhone'];
+        $tipo = $dataclick1['TipoEquipo'];
+        $SSID = $dataclick1['UNEPassword'];
+        $RTA = $dataclick1['RTA'];
+        $RTA2 = $dataclick1['RTA2'];
+        $RTA3 = $dataclick1['RTA3'];
+        $estado_equipo = $dataclick1['estado_equipo'];
         //$estado_equipo    = '';
         $uneSourceSystem = $dataclick1['UneSourceSystem'];
-        $UNETecnologias  = $dataclick1['UNETecnologias'];
+        $UNETecnologias = $dataclick1['UNETecnologias'];
 
         /*$serials          = $dataclick['SerialNo'];
         $macs             = $dataclick['MAC'];
@@ -575,12 +582,12 @@ class Etp extends CI_Controller
         $MACReal2         = $dataclick['MACReal2'];*/
 
 
-        $serials       = implode(',', array_unique(array_column($dataclick, 'SerialNo')));
-        $macs          = implode(',', array_unique(array_column($dataclick, 'MAC')));
-        $SerialNoReal  = implode(',', array_unique(array_column($dataclick, 'SerialNoReal')));
-        $MACReal       = implode(',', array_unique(array_column($dataclick, 'MACReal')));
+        $serials = implode(',', array_unique(array_column($dataclick, 'SerialNo')));
+        $macs = implode(',', array_unique(array_column($dataclick, 'MAC')));
+        $SerialNoReal = implode(',', array_unique(array_column($dataclick, 'SerialNoReal')));
+        $MACReal = implode(',', array_unique(array_column($dataclick, 'MACReal')));
         $SerialNoReal2 = implode(',', array_unique(array_column($dataclick, 'SerialNoReal2')));
-        $MACReal2      = implode(',', array_unique(array_column($dataclick, 'MACReal2')));
+        $MACReal2 = implode(',', array_unique(array_column($dataclick, 'MACReal2')));
 
         $dataEtp = $this->ModeloEtp->getEtpByTask($tarea, $fecha);
 
@@ -657,7 +664,7 @@ class Etp extends CI_Controller
             die();
         }
 
-        $user_id             = $payload->login;
+        $user_id = $payload->login;
         $user_identification = $payload->iduser;
 
 

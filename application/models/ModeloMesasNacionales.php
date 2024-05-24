@@ -13,7 +13,7 @@ class ModeloMesasNacionales extends CI_Model
 		$fecha = $fecha . ' 00:00:00';
 		try {
 			$sql   = "SELECT * FROM mesas_nacionales
-                    WHERE tarea = ? AND hora_ingreso >= ? AND estado in ('Sin gestión', 'En gestión')";
+                    WHERE tarea = ? AND hora_ingreso >= ? AND estado != 'Gestionado'";
 			$query = $this->db->query($sql, [$tarea, $fecha]);
 			$res   = ($query->num_rows() > 0) ? $query->row_array() : 0;
 
@@ -23,6 +23,21 @@ class ModeloMesasNacionales extends CI_Model
 			die($error);
 		}
 	}
+
+    public function sinTrabajo($tarea, $cc)
+    {
+        try {
+            $sql   = "SELECT * FROM mesas_nacionales
+                    WHERE tarea = ? AND cc_tecnico = ? AND estado != 'Gestionado'";
+            $query = $this->db->query($sql, [$tarea, $cc]);
+            $res   = ($query->num_rows() > 0) ? $query->row_array() : 0;
+
+            return $res;
+        } catch (\Throwable $th) {
+            $error = $this->db->error();
+            die($error);
+        }
+    }
 
 	public function postPedidoMn(
 		$nombre_contacto,
@@ -38,12 +53,13 @@ class ModeloMesasNacionales extends CI_Model
         $region,
         $area,
 		$ata,
-		$UNETecnologias
+		$UNETecnologias,
+		$tipoSolicitud
 	) {
 		try {
 			$sql   = "insert into mesas_nacionales(hora_ingreso, estado, nombre_tecnico, num_contacto_tecnico, cc_tecnico,
-                             observacion_tecnico, tarea, pedido, TaskTypeCategory, UneSourceSystem, mesa, accion_tecnico, region, area, activacion_ata, tecnologia)
-			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?);";
+                             observacion_tecnico, tarea, pedido, TaskTypeCategory, UneSourceSystem, mesa, accion_tecnico, region, area, activacion_ata, tecnologia, tipo_solicitud)
+			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 			$query = $this->db->query($sql,
 				[
 					date('Y-m-d H:i:s'),
@@ -61,16 +77,16 @@ class ModeloMesasNacionales extends CI_Model
                     $region,
                     $area,
 					$ata,
-					$UNETecnologias
+					$UNETecnologias,
+					$tipoSolicitud
 				]
 			);
 
-
 			$res = ($this->db->affected_rows() > 0) ? 1 : 0;
-
+			$this->db->close();
 			return $res;
 
-			$this->db->close();
+
 		} catch (\Throwable $th) {
 
 			$error = $this->db->error();

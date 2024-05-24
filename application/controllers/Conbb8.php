@@ -226,4 +226,61 @@ class Conbb8 extends CI_Controller
 
 		}
 	}
+
+	public function getbb8Puertos()
+	{
+		$jwt = $this->input->get_request_header('x-token', TRUE);
+
+		if (!$jwt) {
+			$arrayResult = array('type' => 'errorAuth', 'message' => 'Token no valido.');
+			echo json_encode($arrayResult);
+			die();
+		}
+
+		$payload = $this->validarjwt->verificarjwtlocal($jwt);
+
+		$hora_actual = date('H:i');
+
+		$hora_inicio = '07:00';
+		$hora_fin = '19:00';
+
+		if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
+			$arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
+			echo json_encode($arrayResult);
+			die();
+		}
+
+		if (!$payload) {
+			$arrayResult = array('type' => 'errorAuth', 'message' => 'Token no valido.');
+			echo json_encode($arrayResult);
+			die();
+		}
+
+		$olt = trim(htmlentities($this->input->get('olt'), ENT_QUOTES));
+		$arpon = trim(htmlentities($this->input->get('arpon'), ENT_QUOTES));
+		$nap = trim(htmlentities($this->input->get('nap'), ENT_QUOTES));
+
+		$consulta = $olt . '-' . $arpon . '-' . $nap;
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/getBB8Puertos/$consulta");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		$data = curl_exec($ch);
+		curl_close($ch);
+		$dataDecode = json_decode($data, TRUE);
+
+
+		if ($dataDecode) {
+			$modulo = 'Ocupación NAP';
+			$this->Modelobb8->contador($modulo);
+			$arrayResult = array('type' => 'success', 'message' => $dataDecode);
+		} else {
+			$arrayResult = array('type' => 'error', 'message' =>  'Sin datos para listar.');
+		}
+
+		echo json_encode($arrayResult);
+		die();
+
+	}
 }

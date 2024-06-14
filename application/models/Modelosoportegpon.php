@@ -68,15 +68,15 @@ class Modelosoportegpon extends CI_Model
 
 	public function postsoportegpon($tarea,$arpon,$nap,$hilo,$internet_port1,$internet_port2,$internet_port3,$internet_port4,$tv_port1,$tv_port2,$tv_port3,$tv_port4,$numero_contaco,
         $nombre_contaco,$observacion,$user_id,$request_id,$user_identification,$fecha_solicitud,$unepedido,$tasktypecategory,$unemunicipio,$uneproductos,$engineer_id,$engineer_name,
-        $mobile_phone,$velocidad_navegacion,$serials,$macs,$tipoeqs,$planprod,$tipo, $taskType,$area,$proveedor)
+        $mobile_phone,$velocidad_navegacion,$serials,$macs,$tipoeqs,$planprod,$tipo, $taskType,$area,$proveedor, $region)
 	{
 		try {
 
 			$sql = "INSERT INTO soporte_gpon (tarea, arpon, nap, hilo, port_internet_1, port_internet_2, port_internet_3, port_internet_4, port_television_1, port_television_2, 
                           port_television_3, port_television_4, numero_contacto, nombre_contacto, unepedido, tasktypecategory, unemunicipio, uneproductos, datoscola, engineer_id, 
                           engineer_name, mobile_phone, serial, mac, tipo_equipo, velocidad_navegacion, user_id_firebase, request_id_firebase, user_identification_firebase, 
-                          status_soporte, fecha_solicitud_firebase, fecha_creado, observacion_terreno,uneSourceSystem, task_type, area, proveedor) 
-			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                          status_soporte, fecha_solicitud_firebase, fecha_creado, observacion_terreno,uneSourceSystem, task_type, area, proveedor, region) 
+			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 			$query = $this->db->query($sql,
 				array(
 					$tarea,
@@ -115,15 +115,16 @@ class Modelosoportegpon extends CI_Model
                     $tipo,
                     $taskType,
                     $area,
-					$proveedor
+					$proveedor,
+                    $region
 				)
 			);
+            
 
-			$res = ($this->db->affected_rows() > 0) ? 1 : 0 ;
-
+            $res = ($this->db->affected_rows() > 0) ? 1 : 0 ;
 			return $res;
+            $this->db->close();
 
-			$this->db->close();
 		} catch (\Throwable $th) {
 
 			$error = $this->db->error();

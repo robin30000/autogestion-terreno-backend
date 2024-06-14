@@ -12,6 +12,7 @@ class Etp extends CI_Controller
     {
         parent::__construct();
         $this->load->model('ModeloEtp');
+        $this->load->model('ModeloMesasNacionales');
         $this->load->library('nativesession');
         $this->load->library('validarjwt');
         $this->load->helper('url');
@@ -62,47 +63,58 @@ class Etp extends CI_Controller
         $dataclick = json_decode($data, true);
         $dataclick = (array)$dataclick;
 
-
-        /*if ($pedido == 1){
-            $arrayResult = array('type' => 'success', 'message' => 'GPON');
-
-        }elseif ($pedido == 2){
-            $arrayResult = array('type' => 'success', 'message' => 'INFRA');
-
-        }else{
-            $arrayResult = array('type' => 'error', 'message' => 'La tarea no se encuentra marcada En Sitio');
-
-        }*/
-
-        /**
-         * si es entrega de codigo dejar pasar en camino
-         * si aprovisionaminento de equipo ok cambio equipo
-         *
-         */
+        $validacion = $this->ModeloEtp->validacionesContingecias();
+        $validaEstado = $validacion[10]['valida'];
 
         $dataclick = $dataclick[0];
         /*$arrayResult = ['type' => 'success', 'message' => var_dump($dataclick)];
         echo json_encode($arrayResult);
         die();*/
 
-        if ($dataclick == 404) {
+
+        /*if ($dataclick == 404) {
             $arrayResult = ['type' => 'error', 'message' => 'Pedido no existe.'];
         } elseif ($dataclick['sistema'] != 'ETP') {
             $arrayResult = ['type' => 'error', 'message' => 'Este modulo solo atiende solicitudes de ETP'];
-        } elseif ($dataclick['Status'] == 'En Sitio' || $dataclick['Status'] == 'En Camino') {
-            if (strrpos($dataclick['UNETecnologias'], 'GPON')) {
-                $arrayResult = ['type' => 'success', 'message' => 'GPON'];
-            } elseif (strrpos($dataclick['Infraestructura1'], 'ARPON') || strrpos($dataclick['Infraestructura1'], 'OLT')) {
-                $arrayResult = ['type' => 'success', 'message' => 'GPON'];
-            } elseif ($dataclick['TaskType'] == 'Cambio_Equipo DTH' || $dataclick['TaskType'] == 'Reparacion DTH') {
-                $arrayResult = ['type' => 'success', 'message' => 'ETPLIGHT'];
-            } elseif ($dataclick['TaskType'] == 'Precableado' || $dataclick['TaskType'] == 'Modificacion HFC' || $dataclick['TaskType'] == 'Cambio_Equipo HFC' || $dataclick['TaskType'] == 'Extension HFC') {
-                $arrayResult = ['type' => 'success', 'message' => 'ETPMEDIO'];
-            } else {
-                $arrayResult = ['type' => 'success', 'message' => 'OTRO'];
-            }
+        } else if (strrpos($dataclick['UNETecnologias'], 'GPON')) {
+            $arrayResult = ['type' => 'success', 'message' => 'GPON'];
+        } elseif (strrpos($dataclick['Infraestructura1'], 'ARPON') || strrpos($dataclick['Infraestructura1'], 'OLT')) {
+            $arrayResult = ['type' => 'success', 'message' => 'GPON'];
+        } elseif ($dataclick['TaskType'] == 'Cambio_Equipo DTH' || $dataclick['TaskType'] == 'Reparacion DTH') {
+            $arrayResult = ['type' => 'success', 'message' => 'ETPLIGHT'];
+        } elseif ($dataclick['TaskType'] == 'Precableado' || $dataclick['TaskType'] == 'Modificacion HFC' || $dataclick['TaskType'] == 'Cambio_Equipo HFC' || $dataclick['TaskType'] == 'Extension HFC') {
+            $arrayResult = ['type' => 'success', 'message' => 'ETPMEDIO'];
         } else {
-            $arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra marcada En Sitio'];
+            $arrayResult = ['type' => 'success', 'message' => 'OTRO'];
+        }*/
+
+        if ($dataclick == 404) {
+            $arrayResult = ['type' => 'error', 'message' => 'Pedido no existe.'];
+            echo json_encode($arrayResult);
+            die();
+        }
+        //$dataclick['Status'] != 'En Camino'
+        if ($validaEstado == 'activa') {
+            if ($dataclick['Status'] != 'En Sitio') {
+                $arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra marcada En Sitio'];
+                echo json_encode($arrayResult);
+                die();
+            }
+        }
+
+
+        if ($dataclick['sistema'] != 'ETP') {
+            $arrayResult = ['type' => 'error', 'message' => 'Este modulo solo atiende solicitudes de ETP'];
+        } elseif (strrpos($dataclick['UNETecnologias'], 'GPON')) {
+            $arrayResult = ['type' => 'success', 'message' => 'GPON'];
+        } elseif (strrpos($dataclick['Infraestructura1'], 'ARPON') || strrpos($dataclick['Infraestructura1'], 'OLT')) {
+            $arrayResult = ['type' => 'success', 'message' => 'GPON'];
+        } elseif ($dataclick['TaskType'] == 'Cambio_Equipo DTH' || $dataclick['TaskType'] == 'Reparacion DTH') {
+            $arrayResult = ['type' => 'success', 'message' => 'ETPLIGHT'];
+        } elseif ($dataclick['TaskType'] == 'Precableado' || $dataclick['TaskType'] == 'Modificacion HFC' || $dataclick['TaskType'] == 'Cambio_Equipo HFC' || $dataclick['TaskType'] == 'Extension HFC') {
+            $arrayResult = ['type' => 'success', 'message' => 'ETPMEDIO'];
+        } else {
+            $arrayResult = ['type' => 'success', 'message' => 'OTRO'];
         }
 
         echo json_encode($arrayResult);
@@ -153,157 +165,179 @@ class Etp extends CI_Controller
             $superV = 1;
         }
 
+        $tecnico_cc_solicita = $payload->iduser;
+        $numero_contacto = $payload->celular;
+        $nombre_contacto = $payload->nombre;
+        $observacion = $reqjson['observacion'];
+
+        $accionesValidas = array(
+            'Requiere escalera (Realizar acometida)',
+            'No corresp. a precableado o extensión',
+            'Ubicar Usuario',
+            'Actividad requiere escalera',
+            'Actividad requiere herramientas',
+            'Actividad requiere Materiales',
+            'No corresponde a cambio de equipo',
+            'Cambio de distrito',
+            'Nivelar ruta lejana'
+        );
+
+        if (in_array($accion, $accionesValidas)) {
+            $validacion = $this->ModeloMesasNacionales->validacionesContingecias();
+            $validaEstado = $validacion[10]['valida'];
+            $mesa = 'Geco';
+            $ata = $reqjson['ata'] ?? 'NO';
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV_DEV/validaPedidoMn/$tarea");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            $data = curl_exec($ch);
+            curl_close($ch);
+
+            $dataclick = json_decode($data, true);
+            $dataclick1 = $dataclick[0];
+
+            if (!$dataclick1) {
+                $arrayResult = ['type' => 'error', 'message' => 'La tarea no existe. validar tarea e intentar nuevamente.'];
+                echo json_encode($arrayResult);
+                die();
+            }
+
+            if ($validaEstado == 'activa') {
+                if ($dataclick1['Estado'] != 'En Sitio') {
+                    $arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];
+                    echo json_encode($arrayResult);
+                    die();
+                }
+            }
+
+
+            if ($dataclick1['TaskType'] == 'Precableado' || $dataclick1['TaskType'] == 'Extension HFC' || $dataclick1['TaskType'] == 'Modificacion HFC' || $dataclick1['TaskType'] == 'Cambio_Equipo HFC') {
+                $tipoSolicitud = 'Medio';
+            } else {
+                $tipoSolicitud = 'Light';
+            }
+
+            $unepedido = $dataclick1['UNEPedido'];
+            $tasktypecategory = $dataclick1['TaskTypeCategory'];
+            $uneSourceSystem = $dataclick1['UneSourceSystem'];
+            $UNETecnologias = $dataclick1['UNETecnologias'];
+            $region = $dataclick1['region'];
+
+            $patron = '/GPON/';
+            if (preg_match_all($patron, $UNETecnologias)) {
+                $UNETecnologias = 'GPON';
+            }
+
+            switch ($region) {
+                case 'Antioquia Centro':
+                case 'Antioquia Norte':
+                case 'Antioquia Oriente':
+                case 'Antioquia Sur':
+                case 'Antioquia_Edatel':
+                case 'Boyaca':
+                case 'Norte de Santander':
+                case 'Santander':
+                case 'Boyaca_Edatel':
+                case 'Santander_Edatel':
+                    $area = 'Andina';
+                    break;
+                case 'Atlantico':
+                case 'Bolivar':
+                case 'Magdalena':
+                case 'Cesar':
+                case 'Cordoba':
+                case 'Sucre':
+                case 'Bolivar_Edatel':
+                case 'Cesar_Edatel':
+                case 'Cordoba_Edatel':
+                case 'Guajira':
+                case 'Sucre_Edatel':
+                    $area = 'Costa';
+                    break;
+                case 'Cundinamarca':
+                case 'Cundinamarca Sur':
+                case 'Cundinamarca Norte':
+                case 'Bogota':
+                    $area = 'Bogota';
+                    break;
+                case 'Meta':
+                case 'Valle':
+                case 'Cauca':
+                case 'Nariño':
+                case 'Caldas':
+                case 'Quindio':
+                case 'Risaralda':
+                case 'Valle Quindío':
+                case 'Tolima':
+                    $area = 'Sur';
+                    break;
+            }
+
+            $dataMn = $this->ModeloMesasNacionales->getMnByTask($tarea);
+
+            if (!$dataMn) {
+                $resMn = $this->ModeloMesasNacionales->postPedidoMn(
+                    $nombre_contacto,
+                    $numero_contacto,
+                    $tecnico_cc_solicita,
+                    $observacion,
+                    $tarea,
+                    $unepedido,
+                    $tasktypecategory,
+                    $uneSourceSystem,
+                    $mesa,
+                    $accion,
+                    $region,
+                    $area,
+                    $ata,
+                    $UNETecnologias,
+                    $tipoSolicitud);
+
+                if ($resMn) {
+                    $arrayResult = ['type' => 'success', 'message' => 'Se registro su solicitud con éxito. ver la respuesta en mesas nacionales.'];
+                } else {
+                    $arrayResult = ['type' => 'error', 'message' => 'Error al registrar solicitud.', 'error' => $resMn];
+                }
+            } else {
+                $arrayResult = ['type' => 'error', 'message' => 'Ya se encuentra una solicitud en proceso para esta tarea, valide e intenta nuevamente.'];
+            }
+
+            echo json_encode($arrayResult);
+            die();
+        }
+
         $validacion = $this->ModeloEtp->validacionesContingecias();
 
         $valEquipo = $validacion[6]['valida'];
         $valInfra = $validacion[7]['valida'];
+        $validaEstado = $validacion[10]['valida'];
 
         if ($dataclick[0] == 500) {
             $arrayResult = ['type' => 'error', 'message' => 'Tarea no existe en click, valida por favor mas tarde.'];
             echo json_encode($arrayResult);
             die();
-        } elseif ($accion == 'Entrega de códigos' || $accion == 'Replanteo') {
+        }
 
-        } elseif ($dataclick[0]['Status'] == 'En Sitio') {
+        if ($validaEstado == 'activa') {
+            if ($dataclick[0]['Status'] != 'En Sitio') {
+                $arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];
+                echo json_encode($arrayResult);
+                die();
+            }
+        }
 
-            if ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento' || $dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') {
+        if ($accion == 'Entrega de códigos' || $accion == 'Replanteo') {
 
-                if (!$superV) {
-                    if (str_contains($dataclick[0]['TaskType'], 'Cambio_Tecnologia')) {
+        } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento' || $dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') {
 
-                    } elseif (str_contains($dataclick[0]['TaskType'], 'Cambio')) {
+            if (!$superV) {
+                if (str_contains($dataclick[0]['TaskType'], 'Cambio_Tecnologia')) {
 
-                        foreach ($dataclick as $data) {
-                            if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null || $data['Serialreal'] != 'NO_INSTALADO' || $data['Serialreal2'] != 'NO_INSTALADO' || $data['MACReal'] != 'NO_INSTALADO' || $data['MACReal2'] != 'NO_INSTALADO') {
-                                $band += 1;
-                            }
+                } elseif (str_contains($dataclick[0]['TaskType'], 'Cambio')) {
 
-                            if ($data['RTA3'] != 'NA' || $data['RTA3'] != null) {
-                                $rta3 += 1;
-                            }
-                        }
-                        if ($valEquipo == 'activa') {
-                            if ($band < 1) {
-                                $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
-                                echo json_encode($arrayResult);
-                                die();
-                            }
-
-
-                            if ($rta3 < 1) {
-                                $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
-                                echo json_encode($arrayResult);
-                                die();
-                            }
-                        }
-
-                        if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
-
-                            if ($dataclick[0]['estado_equipo'] == 'Reemplazado') {
-                                foreach ($dataclick as $data) {
-                                    if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null) {
-                                        $band += 1;
-                                    }
-
-                                    if ($data['RTA3'] != 'NA' || $data['RTA3'] != null) {
-                                        $rta3 += 1;
-                                    }
-                                }
-                                if ($valEquipo == 'activa') {
-                                    if ($band < 1) {
-                                        $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
-                                        echo json_encode($arrayResult);
-                                        die();
-                                    }
-
-                                    if ($rta3 < 1) {
-                                        $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
-                                        echo json_encode($arrayResult);
-                                        die();
-                                    }
-                                }
-
-                                if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
-                                    foreach ($dataclick as $data) {
-                                        if ($data['UNEPassword'] != null || $data['SSID'] != null) {
-                                            $validaPass += 1;
-                                        }
-                                    }
-                                    if ($valInfra == 'activa') {
-                                        if ($validaPass < 1) {
-                                            $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
-                                            echo json_encode($arrayResult);
-                                            die();
-                                        }
-                                    }
-                                } else {
-                                    $validaPass = 1;
-                                }
-
-                                if ($valInfra == 'activa') {
-                                    if ($validaPass < 1) {
-                                        $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
-                                        echo json_encode($arrayResult);
-                                        die();
-                                    }
-                                }
-                            } elseif ($dataclick[0]['estado_equipo'] == 'Reparado' || $dataclick[0]['estado_equipo'] == null) {
-                                //$validaPass = 1;
-                            }
-                        }
-
-
-                    } else {
-
-                        if ($dataclick[0]['MAC'] == null || $dataclick[0]['SerialNo'] == null || $dataclick[0]['SerialNo'] == 'NO_INSTALADO' || $dataclick[0]['MAC'] == 'NO_INSTALADO') {
-                            if ($valEquipo == 'activa') {
-                                $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
-                                echo json_encode($arrayResult);
-                                die();
-                            }
-                        }
-                        $rta = 0;
-                        foreach ($dataclick as $data) {
-                            if ($data['RTA'] != 'NA' || $data['RTA'] != null) {
-                                $rta += 1;
-                            }
-                        }
-                        if ($valEquipo == 'activa') {
-                            if ($rta < 1) {
-                                $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
-                                echo json_encode($arrayResult);
-                                die();
-                            }
-                        }
-
-                        if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
-                            foreach ($dataclick as $data) {
-                                if ($data['UNEPassword'] != null || $data['SSID'] != null) {
-                                    $validaPass += 1;
-                                }
-                            }
-                        } else {
-                            $validaPass = 1;
-                        }
-
-                        if ($valInfra == 'activa') {
-                            if ($validaPass < 1) {
-                                $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
-                                echo json_encode($arrayResult);
-                                die();
-                            }
-                        }
-                    }
-                }
-
-
-            } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') {
-                $band = 0;
-                $rta3 = 0;
-
-                if ($dataclick[0]['estado_equipo'] == 'Reemplazado') {
                     foreach ($dataclick as $data) {
-                        if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null) {
+                        if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null || $data['Serialreal'] != 'NO_INSTALADO' || $data['Serialreal2'] != 'NO_INSTALADO' || $data['MACReal'] != 'NO_INSTALADO' || $data['MACReal2'] != 'NO_INSTALADO') {
                             $band += 1;
                         }
 
@@ -311,95 +345,34 @@ class Etp extends CI_Controller
                             $rta3 += 1;
                         }
                     }
-                    if ($band < 1) {
-                        $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
-                        echo json_encode($arrayResult);
-                        die();
-                    }
-
-                    if ($rta3 < 1) {
-                        $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
-                        echo json_encode($arrayResult);
-                        die();
-                    }
-
-                    if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
-                        foreach ($dataclick as $data) {
-                            if ($data['UNEPassword'] != null || $data['SSID'] != null) {
-                                $validaPass += 1;
-                            }
-                        }
-                    } else {
-                        $validaPass = 1;
-                    }
-
-
-                    if ($validaPass < 1) {
-                        $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
-                        echo json_encode($arrayResult);
-                        die();
-                    }
-                } elseif ($dataclick[0]['estado_equipo'] == 'Reparado' || $dataclick[0]['estado_equipo'] == null) {
-
-                }
-            }
-        } else {
-            $arrayResult = ['type' => 'error', 'message' => 'La tarea debe estar en sitio.'];
-            echo json_encode($arrayResult);
-            die();
-        }
-
-        /*if ($dataclick[0] == 500) {
-            $arrayResult = ['type' => 'error', 'message' => 'Tarea no existe en click, valida por favor mas tarde.'];
-            echo json_encode($arrayResult);
-            die();
-        } elseif ($accion == 'Entrega de códigos' || $accion == 'Replanteo') {
-
-        } elseif ($dataclick[0]['Status'] == 'En Sitio') {
-
-            if ($dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento' || $dataclick[0]['TaskTypeCategory'] == 'Aprovisionamiento BSC') {
-
-                if (!$superV) {
-                    if (str_contains($dataclick[0]['TaskType'], 'Cambio_Tecnologia')) {
-
-                    } elseif (str_contains($dataclick[0]['TaskType'], 'Cambio')) {
-
-
-
-
-                        foreach ($dataclick as $data) {
-                            if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null || $data['Serialreal'] != 'NO_INSTALADO' || $data['Serialreal2'] != 'NO_INSTALADO' || $data['MACReal'] != 'NO_INSTALADO' || $data['MACReal2'] != 'NO_INSTALADO') {
-                                $band += 1;
-                            }
-
-                            if ($data['RTA3'] != 'NA' || $data['RTA3'] != null) {
-                                $rta3 += 1;
-                            }
-                        }
+                    if ($valEquipo == 'activa') {
                         if ($band < 1) {
                             $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
                             echo json_encode($arrayResult);
                             die();
                         }
 
+
                         if ($rta3 < 1) {
                             $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
                             echo json_encode($arrayResult);
                             die();
                         }
+                    }
 
-                        if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
+                    if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
 
-                            if ($dataclick[0]['estado_equipo'] == 'Reemplazado') {
-                                foreach ($dataclick as $data) {
-                                    if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null) {
-                                        $band += 1;
-                                    }
-
-                                    if ($data['RTA3'] != 'NA' || $data['RTA3'] != null) {
-                                        $rta3 += 1;
-                                    }
+                        if ($dataclick[0]['estado_equipo'] == 'Reemplazado') {
+                            foreach ($dataclick as $data) {
+                                if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null) {
+                                    $band += 1;
                                 }
+
+                                if ($data['RTA3'] != 'NA' || $data['RTA3'] != null) {
+                                    $rta3 += 1;
+                                }
+                            }
+                            if ($valEquipo == 'activa') {
                                 if ($band < 1) {
                                     $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
                                     echo json_encode($arrayResult);
@@ -411,99 +384,59 @@ class Etp extends CI_Controller
                                     echo json_encode($arrayResult);
                                     die();
                                 }
+                            }
 
-                                if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
-                                    foreach ($dataclick as $data) {
-                                        if ($data['UNEPassword'] != null || $data['SSID'] != null) {
-                                            $validaPass += 1;
-                                        }
+                            if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
+                                foreach ($dataclick as $data) {
+                                    if ($data['UNEPassword'] != null || $data['SSID'] != null) {
+                                        $validaPass += 1;
                                     }
-
+                                }
+                                if ($valInfra == 'activa') {
                                     if ($validaPass < 1) {
                                         $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
                                         echo json_encode($arrayResult);
                                         die();
                                     }
-                                } else {
-                                    $validaPass = 1;
                                 }
+                            } else {
+                                $validaPass = 1;
+                            }
 
-
+                            if ($valInfra == 'activa') {
                                 if ($validaPass < 1) {
                                     $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
                                     echo json_encode($arrayResult);
                                     die();
                                 }
-                            } elseif ($dataclick[0]['estado_equipo'] == 'Reparado' || $dataclick[0]['estado_equipo'] == null) {
-                                //$validaPass = 1;
                             }
+                        } elseif ($dataclick[0]['estado_equipo'] == 'Reparado' || $dataclick[0]['estado_equipo'] == null) {
+                            //$validaPass = 1;
                         }
+                    }
 
 
-                    } else {
+                } else {
 
-                        if ($dataclick[0]['MAC'] == null || $dataclick[0]['SerialNo'] == null || $dataclick[0]['SerialNo'] == 'NO_INSTALADO' || $dataclick[0]['MAC'] == 'NO_INSTALADO') {
+                    if ($dataclick[0]['MAC'] == null || $dataclick[0]['SerialNo'] == null || $dataclick[0]['SerialNo'] == 'NO_INSTALADO' || $dataclick[0]['MAC'] == 'NO_INSTALADO') {
+                        if ($valEquipo == 'activa') {
                             $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
                             echo json_encode($arrayResult);
                             die();
                         }
-                        $rta = 0;
-                        foreach ($dataclick as $data) {
-                            if ($data['RTA'] != 'NA' || $data['RTA'] != null) {
-                                $rta += 1;
-                            }
+                    }
+                    $rta = 0;
+                    foreach ($dataclick as $data) {
+                        if ($data['RTA'] != 'NA' || $data['RTA'] != null) {
+                            $rta += 1;
                         }
-
+                    }
+                    if ($valEquipo == 'activa') {
                         if ($rta < 1) {
                             $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
                             echo json_encode($arrayResult);
                             die();
                         }
-
-                        if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
-                            foreach ($dataclick as $data) {
-                                if ($data['UNEPassword'] != null || $data['SSID'] != null) {
-                                    $validaPass += 1;
-                                }
-                            }
-                        } else {
-                            $validaPass = 1;
-                        }
-
-
-                        if ($validaPass < 1) {
-                            $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
-                            echo json_encode($arrayResult);
-                            die();
-                        }
-                    }
-                }
-
-
-            } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') {
-                $band = 0;
-                $rta3 = 0;
-
-                if ($dataclick[0]['estado_equipo'] == 'Reemplazado') {
-                    foreach ($dataclick as $data) {
-                        if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null) {
-                            $band += 1;
-                        }
-
-                        if ($data['RTA3'] != 'NA' || $data['RTA3'] != null) {
-                            $rta3 += 1;
-                        }
-                    }
-                    if ($band < 1) {
-                        $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
-                        echo json_encode($arrayResult);
-                        die();
-                    }
-
-                    if ($rta3 < 1) {
-                        $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
-                        echo json_encode($arrayResult);
-                        die();
                     }
 
                     if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
@@ -516,21 +449,62 @@ class Etp extends CI_Controller
                         $validaPass = 1;
                     }
 
-
-                    if ($validaPass < 1) {
-                        $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
-                        echo json_encode($arrayResult);
-                        die();
+                    if ($valInfra == 'activa') {
+                        if ($validaPass < 1) {
+                            $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
+                            echo json_encode($arrayResult);
+                            die();
+                        }
                     }
-                } elseif ($dataclick[0]['estado_equipo'] == 'Reparado' || $dataclick[0]['estado_equipo'] == null) {
-
                 }
             }
-        } else {
-            $arrayResult = ['type' => 'error', 'message' => 'La tarea debe estar en sitio.'];
-            echo json_encode($arrayResult);
-            die();
-        }*/
+
+        } elseif ($dataclick[0]['TaskTypeCategory'] == 'Aseguramiento') {
+            $band = 0;
+            $rta3 = 0;
+
+            if ($dataclick[0]['estado_equipo'] == 'Reemplazado') {
+                foreach ($dataclick as $data) {
+                    if ($data['Serialreal'] != null || $data['Serialreal2'] != null || $data['MACReal'] != null || $data['MACReal2'] != null) {
+                        $band += 1;
+                    }
+
+                    if ($data['RTA3'] != 'NA' || $data['RTA3'] != null) {
+                        $rta3 += 1;
+                    }
+                }
+                if ($band < 1) {
+                    $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene equipos asignados.'];
+                    echo json_encode($arrayResult);
+                    die();
+                }
+
+                if ($rta3 < 1) {
+                    $arrayResult = ['type' => 'error', 'message' => 'No se ha intentado activar equipos.'];
+                    echo json_encode($arrayResult);
+                    die();
+                }
+
+                if (str_contains($dataclick[0]['EQProducto'], 'Internet') || str_contains($dataclick[0]['EQProducto'], 'INTERNET')) {
+                    foreach ($dataclick as $data) {
+                        if ($data['UNEPassword'] != null || $data['SSID'] != null) {
+                            $validaPass += 1;
+                        }
+                    }
+                } else {
+                    $validaPass = 1;
+                }
+
+
+                if ($validaPass < 1) {
+                    $arrayResult = ['type' => 'error', 'message' => 'La tarea no tiene SSID o clave wifi asignada.'];
+                    echo json_encode($arrayResult);
+                    die();
+                }
+            } elseif ($dataclick[0]['estado_equipo'] == 'Reparado' || $dataclick[0]['estado_equipo'] == null) {
+
+            }
+        }
 
 
         $internet_port1 = trim(htmlentities($reqjson['internet_port1'], ENT_QUOTES));
@@ -541,11 +515,6 @@ class Etp extends CI_Controller
         $tv_port2 = trim(htmlentities($reqjson['tv_port2'], ENT_QUOTES));
         $tv_port3 = trim(htmlentities($reqjson['tv_port3'], ENT_QUOTES));
         $tv_port4 = trim(htmlentities($reqjson['tv_port4'], ENT_QUOTES));
-        $numero_contacto = $payload->celular;
-        $nombre_contacto = $payload->nombre;
-        $cc_tecnico = $payload->cc;
-        //$nombre_contacto = trim(htmlentities($reqjson['nombre_contacto'], ENT_QUOTES));
-        $observacion = $reqjson['observacion'];
 
         $macSale = trim(htmlentities($reqjson['macSale'], ENT_QUOTES));
         $macEntra = trim(htmlentities($reqjson['macEntra'], ENT_QUOTES));
@@ -554,7 +523,6 @@ class Etp extends CI_Controller
 
 
         $dataclick1 = $dataclick[0];
-        $tecnico_cc_solicita = $payload->iduser;
         $tecnico_login_solicita = $payload->login;
 
         $unepedido = $dataclick1['UNEPedido'];
@@ -573,14 +541,6 @@ class Etp extends CI_Controller
         //$estado_equipo    = '';
         $uneSourceSystem = $dataclick1['UneSourceSystem'];
         $UNETecnologias = $dataclick1['UNETecnologias'];
-
-        /*$serials          = $dataclick['SerialNo'];
-        $macs             = $dataclick['MAC'];
-        $SerialNoReal     = $dataclick['SerialNoReal'];
-        $MACReal          = $dataclick['MACReal'];
-        $SerialNoReal2    = $dataclick['SerialNoReal2'];
-        $MACReal2         = $dataclick['MACReal2'];*/
-
 
         $serials = implode(',', array_unique(array_column($dataclick, 'SerialNo')));
         $macs = implode(',', array_unique(array_column($dataclick, 'MAC')));

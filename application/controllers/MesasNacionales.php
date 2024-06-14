@@ -31,7 +31,7 @@ class MesasNacionales extends CI_Controller
         $hora_actual = date('H:i');
 
         $hora_inicio = '07:00';
-        $hora_fin = '20:00';
+        $hora_fin = '19:00';
 
         if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
             $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
@@ -110,6 +110,7 @@ class MesasNacionales extends CI_Controller
 
         $validacion = $this->ModeloMesasNacionales->validacionesContingecias();
         $click = $validacion[9]['valida'];
+        $validaEstado = $validacion[10]['valida'];
 
         if (stripos($tarea, 'sa') === 0 || $click === 'inactiva') {
             $arrayResult = ['type' => 'success', 'message' => 'ELT-POE'];
@@ -128,11 +129,17 @@ class MesasNacionales extends CI_Controller
          * Cambio_Equipo HFC -->MEDIO
          */
 
+        if ($validaEstado == 'activa') {
+            if ($dataclick[0]['Estado'] != 'En Sitio') {
+                $arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];
+                echo json_encode($arrayResult);
+                die();
+            }
+        }
+
 
         if (!$dataclick) {
             $arrayResult = ['type' => 'error', 'message' => 'La tarea no existe. validar tarea e intentar nuevamente.'];
-        } elseif ($dataclick[0]['Estado'] != 'En Sitio') {
-            $arrayResult = ['type' => 'error', 'message' => 'La tarea no se encuentra en sitio'];
         } elseif ($dataclick[0]['UneSourceSystem'] == 'ETP') {
             $arrayResult = ['type' => 'error', 'message' => 'Este caso dede ser escalado a soporte ETP'];
         } elseif ($dataclick[0]['TaskType'] == 'Reparacion Infraestructura') {
@@ -215,6 +222,7 @@ class MesasNacionales extends CI_Controller
 
         $validacion = $this->ModeloMesasNacionales->validacionesContingecias();
         $click = $validacion[9]['valida'];
+        $validaEstado = $validacion[10]['valida'];
 
         if (stripos($tarea, 'sa') === 0 || $click === 'inactiva') {
             $dataMn = $this->ModeloMesasNacionales->getMnByTask($tarea);
@@ -255,11 +263,15 @@ class MesasNacionales extends CI_Controller
             }
             echo json_encode($arrayResult);
             die();
-        } elseif ($dataclick1['Estado'] != 'En Sitio') {
-			$arrayResult = ['type' => 'error', 'message' => 'La tarea ya no se encuentra en sitio'];
-			echo json_encode($arrayResult);
-			die();
-		}
+        }
+
+        if ($validaEstado == 'activa') {
+            if ($dataclick1['Estado'] != 'En Sitio') {
+                $arrayResult = ['type' => 'error', 'message' => 'La tarea ya no se encuentra en sitio'];
+                echo json_encode($arrayResult);
+                die();
+            }
+        }
 
         if ($dataclick1['TaskType'] == 'Reparacion Infraestructura') {
             $mesa = 'Mesa 4';

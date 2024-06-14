@@ -222,13 +222,18 @@ class Concodigoincompleto extends CI_Controller
 			$from_time = strtotime($datacodinc[0]['TimeCreated']);
 			$minutes = round(abs($to_time - $from_time) / 60, 0);
 
+            $validacion = $this->Modelocodigoincompleto->validacionesContingecias();
+            $validaEstado = $validacion[10]['valida'];
 
 			if ($ret){
-				if ($datacodinc[0]['Estado'] != 'En Sitio') {
-					$arrayResult = array('type' => 'error', 'message' => 'Debes estar en sitio para continuar.');
-					echo json_encode($arrayResult);
-					die();
-				}
+
+                if ($validaEstado == 'activa') {
+                    if ($datacodinc[0]['Estado'] != 'En Sitio') {
+                        $arrayResult = array('type' => 'error', 'message' => 'Debes estar en sitio para continuar.');
+                        echo json_encode($arrayResult);
+                        die();
+                    }
+                }
 
 				$datagestioncodinc = $this->Modelocodigoincompleto->getgestioncodigoincompletotarea($tarea);
 				if (!$datagestioncodinc) {
@@ -269,11 +274,13 @@ class Concodigoincompleto extends CI_Controller
 				die();
 			}
 
-			if ($datacodinc[0]['Estado'] != 'En Sitio') {
-				$arrayResult = array('type' => 'error', 'message' => 'Debes estar en sitio para continuar.');
-				echo json_encode($arrayResult);
-				die();
-			}
+            if ($validaEstado == 'activa') {
+                if ($datacodinc[0]['Estado'] != 'En Sitio') {
+                    $arrayResult = array('type' => 'error', 'message' => 'Debes estar en sitio para continuar.');
+                    echo json_encode($arrayResult);
+                    die();
+                }
+            }
 
 			$validacion = $this->Modelocodigoincompleto->validacionesContingecias();
 

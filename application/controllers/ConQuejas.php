@@ -56,6 +56,7 @@ class ConQuejas extends CI_Controller {
         } else {
             //$dataquejas = ['SS' => 'N/A','NOMBRE_CUENTA' => 'N/A','IDENTIFICACION' => 'N/A','CELULAR' => 'N/A','FIJO' => 'N/A','NUMERO_CUN' => 'N/A','EMAIL' => 'N/A','DIRECCION' => 'N/A','DESCRIPCION' => 'N/A'];
             $arrayResult = array('type' => 'error', 'message' => 'No hay datos para listar');
+
             //$arrayResult = array('type' => 'success', 'message' => array($dataquejas));
         }
 
@@ -72,10 +73,10 @@ class ConQuejas extends CI_Controller {
         $hora_actual = date('H:i');
 
         $hora_inicio = '07:00';
-        $hora_fin    = '20:00';
+        $hora_fin    = '19:00';
 
         if ($hora_actual <= $hora_inicio || $hora_actual >= $hora_fin) {
-            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 8pm'];
+            $arrayResult = ['type' => 'error', 'message' => 'El horario de operación es de 7am a 7pm'];
             echo json_encode($arrayResult);
             die();
         }

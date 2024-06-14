@@ -50,11 +50,11 @@ class Modelocontingencia extends CI_Model
 		}
 	}
 
-	public function postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes, $pedido, $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification, $fecha_solicitud, $engestion,  $tAREA_ID, $sistema, $typeTask)
+	public function postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes, $pedido, $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification, $fecha_solicitud, $engestion,  $tAREA_ID, $sistema, $typeTask, $region)
 	{
 		try {
 
-			$sql = "INSERT INTO contingencias (accion, ciudad, correo, macEntra, macSale, motivo, observacion, paquetes, pedido, proceso, producto, remite, tecnologia, tipoEquipo, uen, contrato, perfil, grupo, logindepacho, id_terreno, horagestion, engestion, tarea, uneSourceSystem, taskType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?);";
+			$sql = "INSERT INTO contingencias (accion, ciudad, correo, macEntra, macSale, motivo, observacion, paquetes, pedido, proceso, producto, remite, tecnologia, tipoEquipo, uen, contrato, perfil, grupo, logindepacho, id_terreno, horagestion, engestion, tarea, uneSourceSystem, taskType, region) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 			$query = $this->db->query($sql,
 				array(
 					$tipocontingencia,
@@ -79,7 +79,7 @@ class Modelocontingencia extends CI_Model
 					$user_identification,
 					$fecha_solicitud,
 					$engestion,
-                    $tAREA_ID, $sistema, $typeTask
+                    $tAREA_ID, $sistema, $typeTask, $region
 				)
 			);
 

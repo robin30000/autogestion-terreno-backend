@@ -12,10 +12,10 @@ class ModeloMesasNacionales extends CI_Model
 		$fecha = date('Y-m-d');
 		$fecha = $fecha . ' 00:00:00';
 		try {
-			$sql   = "SELECT * FROM mesas_nacionales
+			$sql = "SELECT * FROM mesas_nacionales
                     WHERE tarea = ? AND hora_ingreso >= ? AND estado != 'Gestionado'";
 			$query = $this->db->query($sql, [$tarea, $fecha]);
-			$res   = ($query->num_rows() > 0) ? $query->row_array() : 0;
+			$res = ($query->num_rows() > 0) ? $query->row_array() : 0;
 
 			return $res;
 		} catch (\Throwable $th) {
@@ -24,20 +24,20 @@ class ModeloMesasNacionales extends CI_Model
 		}
 	}
 
-    public function sinTrabajo($tarea, $cc)
-    {
-        try {
-            $sql   = "SELECT * FROM mesas_nacionales
+	public function sinTrabajo($tarea, $cc)
+	{
+		try {
+			$sql = "SELECT * FROM mesas_nacionales
                     WHERE tarea = ? AND cc_tecnico = ? AND estado != 'Gestionado'";
-            $query = $this->db->query($sql, [$tarea, $cc]);
-            $res   = ($query->num_rows() > 0) ? $query->row_array() : 0;
+			$query = $this->db->query($sql, [$tarea, $cc]);
+			$res = ($query->num_rows() > 0) ? $query->row_array() : 0;
 
-            return $res;
-        } catch (\Throwable $th) {
-            $error = $this->db->error();
-            die($error);
-        }
-    }
+			return $res;
+		} catch (\Throwable $th) {
+			$error = $this->db->error();
+			die($error);
+		}
+	}
 
 	public function postPedidoMn(
 		$nombre_contacto,
@@ -50,16 +50,20 @@ class ModeloMesasNacionales extends CI_Model
 		$UneSourceSystem,
 		$mesa,
 		$accion,
-        $region,
-        $area,
+		$region,
+		$area,
 		$ata,
 		$UNETecnologias,
-		$tipoSolicitud
-	) {
+		$tipoSolicitud,
+		$calendario,
+		$microzona,
+		$TaskType
+	)
+	{
 		try {
-			$sql   = "insert into mesas_nacionales(hora_ingreso, estado, nombre_tecnico, num_contacto_tecnico, cc_tecnico,
-                             observacion_tecnico, tarea, pedido, TaskTypeCategory, UneSourceSystem, mesa, accion_tecnico, region, area, activacion_ata, tecnologia, tipo_solicitud)
-			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+			$sql = "insert into mesas_nacionales(hora_ingreso, estado, nombre_tecnico, num_contacto_tecnico, cc_tecnico,
+                             observacion_tecnico, tarea, pedido, TaskTypeCategory, UneSourceSystem, mesa, accion_tecnico, region, area, activacion_ata, tecnologia, tipo_solicitud, calendario, microzona, tasktype)
+			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 			$query = $this->db->query($sql,
 				[
 					date('Y-m-d H:i:s'),
@@ -74,11 +78,14 @@ class ModeloMesasNacionales extends CI_Model
 					$UneSourceSystem,
 					$mesa,
 					$accion,
-                    $region,
-                    $area,
+					$region,
+					$area,
 					$ata,
 					$UNETecnologias,
-					$tipoSolicitud
+					$tipoSolicitud,
+					$calendario,
+					$microzona,
+					$TaskType
 				]
 			);
 
@@ -103,7 +110,7 @@ class ModeloMesasNacionales extends CI_Model
 	{
 		try {
 			$fecha = date('Y-m-d');
-			$sql   = "SELECT
+			$sql = "SELECT
 						tarea,
 						pedido,
 						tasktypecategory,
@@ -135,7 +142,7 @@ class ModeloMesasNacionales extends CI_Model
 	public function validacionesContingecias()
 	{
 		try {
-			$sql   = "SELECT valida, tipo from validaciones_apk";
+			$sql = "SELECT valida, tipo from validaciones_apk";
 			$query = $this->db->query($sql);
 
 			$res = ($query->num_rows() > 0) ? $query->result_array() : 0;

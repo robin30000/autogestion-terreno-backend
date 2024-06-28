@@ -122,6 +122,8 @@ $route['getsoporteMnbyuser'] = 'MesasNacionales/getsoporteMnbyuser';
 
 $route['validaEncuesta'] = 'EncuestaTecnico/validaEncuesta';
 $route['getEncuesta'] = 'EncuestaTecnico/getEncuesta';
+$route['getCelularTecnico'] = 'EncuestaTecnico/getCelularTecnico';
+$route['guardaCelularTecnico'] = 'EncuestaTecnico/guardaCelularTecnico';
 
 /**
  * TAREA SUPERVISOR
@@ -129,6 +131,12 @@ $route['getEncuesta'] = 'EncuestaTecnico/getEncuesta';
 
 $route['tareasupervisor'] = 'TareaSupervisor/tareasupervisor';
 
+/**
+ * network
+ */
 
+$route['postNetwork'] = 'Network/postNetwork';
+$route['getNetworkByUserMass'] = 'Network/getNetworkByUserMass';
+$route['getNetworkByUserIndividual'] = 'Network/getNetworkByUserIndividual';
 
 

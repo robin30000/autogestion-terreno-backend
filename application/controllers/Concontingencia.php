@@ -67,6 +67,7 @@ class Concontingencia extends CI_Controller
 
         $validacion = $this->Modelocontingencia->validacionesContingecias();
         $click = $validacion[9]['valida'];
+        $validaEstado = $validacion[10]['valida'];
 
         if (stripos($pedido, 'sa') !== false || stripos($pedido, 'w') !== false || $click === 'inactiva') {
 
@@ -91,11 +92,12 @@ class Concontingencia extends CI_Controller
                 $tAREA_ID            = $pedido;
                 $sistema             = 'POE-SA';
                 $typeTask = '';
+                $region = '';
 
                 $ressoportegpon = $this->Modelocontingencia->postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes,
                     $pedido,
                     $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification,
-                    $fecha_solicitud, $engestion, $tAREA_ID, $sistema, $typeTask);
+                    $fecha_solicitud, $engestion, $tAREA_ID, $sistema, $typeTask, $region);
 
                 if ($ressoportegpon == 1 || $ressoportegpon == 0) {
                     $arrayResult = ['type' => 'success', 'message' => 'Se registro solicitud con éxito.'];
@@ -279,11 +281,12 @@ class Concontingencia extends CI_Controller
                        die();
                    }
                }*/
-
-            if ($dataclick['Estado'] != 'En Sitio') {
-                $arrayResult = array('type' => 'error', 'message' => 'El pedido debe estar En Sitio.');
-                echo json_encode($arrayResult);
-                die();
+            if ($validaEstado == 'activa') {
+                if ($dataclick['Estado'] != 'En Sitio') {
+                    $arrayResult = array('type' => 'error', 'message' => 'El pedido debe estar En Sitio.');
+                    echo json_encode($arrayResult);
+                    die();
+                }
             }
 
             /* if ($dataclick['SitemaOrigen'] === 'ETP') {
@@ -322,7 +325,7 @@ class Concontingencia extends CI_Controller
         $uNETecnologias  = $dataclick['uNETecnologias'];
         $uNEUENcalculada = $dataclick['uNEUENcalculada'];
         $uNERutaTrabajo  = $dataclick['uNERutaTrabajo'];
-        $uNEUen          = $dataclick['uNEUen'];
+        $region          = $dataclick['uNEUen'];
         $TaskType        = $dataclick['TaskType'];
         $DispatchDate    = $dataclick['DispatchDate'];
         $Description     = $dataclick['Description'];
@@ -361,7 +364,7 @@ class Concontingencia extends CI_Controller
 
             $ressoportegpon = $this->Modelocontingencia->postcontingencia($tipocontingencia, $uNEMunicipio, $correo, $macentra, $macsale, $motivo, $observacion, $paquetes, $pEDIDO_UNE,
                 $TaskType, $tipoproducto, $remite, $uNETecnologias, $tipoEquipo, $uNEUENcalculada, $uNEProvisioner, $perfil, $grupo, $user_id, $user_identification,
-                $fecha_solicitud, $engestion, $tAREA_ID, $sistema, $typeTask);
+                $fecha_solicitud, $engestion, $tAREA_ID, $sistema, $typeTask, $region);
 
             if ($ressoportegpon == 1 || $ressoportegpon == 0) {
                 $arrayResult = array('type' => 'success', 'message' => 'Se registro solicitud con éxito.');

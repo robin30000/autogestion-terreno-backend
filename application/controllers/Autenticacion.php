@@ -321,6 +321,13 @@ class Autenticacion extends CI_Controller
                     "pageName" => "Tips",
                     "estado" => true,
                 ],
+	            [
+		            "menuOpt" => 24,
+		            "menuName" => "Network",
+		            "menuIcon" => 60998,
+		            "pageName" => "Network",
+		            "estado" => true,
+	            ],
             ];
         }
 
@@ -451,6 +458,13 @@ class Autenticacion extends CI_Controller
                     "pageName" => "Tips",
                     "estado" => true,
                 ],
+	            [
+		            "menuOpt" => 24,
+		            "menuName" => "Network",
+		            "menuIcon" => 60998,
+		            "pageName" => "Network",
+		            "estado" => true,
+	            ],
             ];
         }
 

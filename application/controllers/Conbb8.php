@@ -93,8 +93,8 @@ class Conbb8 extends CI_Controller
 
 
 			$ch = curl_init();
-			//curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetClick/$pedido");
-			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV/Buscar/$pedido");
+			curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/BB8/contingencias/Buscar/GetClick/$pedido");
+			//curl_setopt($ch, CURLOPT_URL, "http://10.100.66.254/HCHV/Buscar/$pedido");
 
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -102,7 +102,7 @@ class Conbb8 extends CI_Controller
 			curl_close($ch);
 
 			$databb8 = json_decode($data, TRUE);
-			$gis = $databb8['ID_GIS'];
+			$gis = $databb8[0]['UNECodigoDireccionServicio'];
 
 			/**
 			 * velocidad
@@ -205,6 +205,13 @@ class Conbb8 extends CI_Controller
 				];
 			}
 
+            if (!$equipos){
+                $equipos[] = [
+                    "SERIAL" => 'N/A',
+                    "MAC" => 'N/A',
+                    "MARCA" => 'N/A',
+                ];
+            }
 
 			foreach ($equipos as &$equipo) {
 				$equipo['PAQUETE'] = $paquetesString;
